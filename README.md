@@ -22,8 +22,8 @@ for each dataset and
 services (Google Spreadsheet, Datawrapper, even another `Datastore`) can work
 on further
 
-It includes a simple command-line interface (**TODO**), e.g. for automated
-processing via cronojobs.
+It includes a simple command-line interface, e.g. for automated
+processing via cronjobs.
 
 ## Quickstart
 
@@ -72,15 +72,17 @@ dataset = dataset.update()
 store.update()
 ```
 
-**TODO**: Update your datastore from the command-line (for use in cronjobs e.g.)
+Update your datastore from the command-line (for use in cronjobs e.g.)
+
+Specify config path either via `--config` or env var `CONFIG`
 
 Update all:
 
     $ runpandarun update --config /path/to/config.yml
 
-Only specific datasets:
+Only specific datasets and with env var:
 
-    $ runpandarun update --config /path/to/config.yml --datasets my_dataset my_other_dataset ...
+    $ CONFIG=/path/to/config.yml runpandarun update my_dataset my_other_dataset ...
 
 ## Installation
 

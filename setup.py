@@ -24,6 +24,11 @@ setup(
     author_email='simon.woerpel@medienrevolte.de',
     license='MIT',
     packages=['runpandarun'],
+    entry_points={
+        'console_scripts': [
+            'runpandarun=runpandarun.cli:main'
+        ]
+    },
     install_requires=[
         'banal',
         'pyyaml',
