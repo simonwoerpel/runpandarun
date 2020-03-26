@@ -347,6 +347,22 @@ But features could be:
 - s3
 - ...
 
+
+## cli
+
+```bash
+usage: runpandarun [-h] [--loglevel LOGLEVEL] {update,print,publish} ...
+
+positional arguments:
+  {update,print,publish}
+                        commands help: run `runpandarun <command> -h`
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --loglevel LOGLEVEL
+```
+
+
 ## developement
 
 Install testing requirements:
