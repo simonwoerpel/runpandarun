@@ -203,6 +203,7 @@ datasets:               # definition for datasets
 
     ...
     drop_duplicates: false          # disable default de-duplication
+```
 
 ### combining
 
