@@ -10,20 +10,17 @@ datasets:
       - id: identifier
       - value
       - date
-    index: id
   a_local_csv:
     csv_local: ./example/testdata.csv
     columns:
       - value: amount
       - state
       - date
-    index: date
-    dt_index: true
+    dt_index: date
   a_local_json:
     json_local: ./example/testdata.json
     columns:
       - value: integer
       - state
       - date
-    index: date
-    dt_index: true
+    dt_index: date

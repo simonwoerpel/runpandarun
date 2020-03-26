@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
 
     def test_json(self):
         ds = self.store.a_local_json
-        self.assertTrue(ds._has_dt_index)
+        self.assertTrue(ds._config.dt_index)
         df = ds.df
         self.assertIsInstance(df, pd.DataFrame)
         self.assertEqual('date', df.index.name)
@@ -99,16 +99,14 @@ class Test(unittest.TestCase):
               - value: amount
               - state
               - date
-            index: date
-            dt_index: true
+            dt_index: date
           same_but_different:
             csv_local: ./example/testdata.csv
             columns:
               - amount
               - location: state
               - date
-            index: date
-            dt_index: true
+            dt_index: date
         """
         store = Datastore.from_yaml_string(config)
         store.update()
@@ -131,22 +129,46 @@ class Test(unittest.TestCase):
                 - id: identifier
                 - value
                 - date
-              index: id
               incremental: true
+              ops: false  # disable drop_duplicates to simulate updated data
         """
         store = Datastore.from_yaml_string(config)
         ds = store.my_dataset
-        self.assertTrue(ds._incremental)
+        self.assertTrue(ds._config.incremental)
         items = len(ds.df)
         ds = ds.update()
         self.assertGreater(len(ds.df), items)
         self.assertEqual(len(ds.df), items*2)
 
         config = store._config
-        config['datasets']['my_dataset']['drop_duplicates'] = True
+        del config['datasets']['my_dataset']['ops']  # enable default ops with drop_duplicates
         store = Datastore.from_dict(config)
         ds = store.my_dataset
-        self.assertTrue(ds._incremental)
+        self.assertTrue(ds._config.incremental)
         items = len(ds.df)
         ds = ds.update()
         self.assertEqual(len(ds.df), items)
+
+    def test_ops(self):
+        config = """
+        storage:
+          data_root: datastore-testdata/test_incremental
+        datasets:
+          my_dataset:
+              csv_url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv  # noqa
+              columns:
+                - id: identifier
+                - value
+                - date
+        """
+        store = Datastore.from_yaml_string(config)
+        ds = store.datasets[0]
+        self.assertIsInstance(ds._config.ops, list)  # base ops
+        config = store._config
+        config['datasets']['my_dataset']['ops'] = [
+            {'sort_values': {'ascending': False, 'by': 'value'}},
+            {'fillna': {'value': ''}}
+        ]
+        store = Datastore.from_dict(config)
+        ds = store.datasets[0]
+        ds.df

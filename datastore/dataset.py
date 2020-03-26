@@ -1,9 +1,9 @@
-import banal
 import io
 import numpy as np
 import pandas as pd
 
 from .exceptions import ConfigError
+from .ops import apply_ops
 from .storage import DatasetStorage
 from .util import cached_property
 
@@ -25,6 +25,25 @@ RESAMPLE_INTERVALS = {
     'yearly': '1A'
 }
 
+DEFAULT_CONFIG = {
+    'index': 'id',
+    'ops': [
+        'drop_duplicates',
+        'sort_index'
+    ]
+}
+
+
+class Config:
+    def __init__(self, config):
+        self._config = config
+
+    def __getattr__(self, attr):
+        return self._config.get(attr)
+
+    def to_dict(self):
+        return self._config
+
 
 # aggregation shortcuts
 class Resample:
@@ -38,14 +57,10 @@ class Resample:
 class Dataset:
     def __init__(self, name, config, storage):
         self.name = name
-        self._config = config
+        self._config = Config({**DEFAULT_CONFIG, **config})
         self._storage = DatasetStorage(name, config, storage)
         self._base_df = None
         self._df = None
-        self._has_dt_index = config.get('dt_index', False) is True
-        self._incremental = config.get('incremental', False) is True
-        self._drop_duplicates = config.get('drop_duplicates')
-        self._sort = config.get('sort')
 
         for interval_name, interval in RESAMPLE_INTERVALS.items():
             setattr(self, interval_name, Resample(interval, self.resample))
@@ -63,29 +78,22 @@ class Dataset:
     def update(self):
         """refresh from remote source and return new instance"""
         self._storage.get_source(update=True)
-        return Dataset(self.name, self._config, self._storage.storage)
+        return Dataset(self.name, self._config.to_dict(), self._storage.storage)
 
     def load(self):
         source = self._storage.get_source()
-        if self._storage.is_csv:
-            if self._incremental:
-                return pd.concat(pd.read_csv(io.StringIO(d)) for d in source)
-            data = io.StringIO(self._storage.get_source())
-            return pd.read_csv(data)
-        if self._storage.is_json:
-            if self._incremental:
-                return pd.concat(pd.read_json(io.StringIO(d)) for d in source)
-            data = io.StringIO(self._storage.get_source())
-            return pd.read_json(data)
+        read = getattr(pd, f'read_{self._storage.format}')
+        if self._config.incremental:
+            return pd.concat(read(io.StringIO(d)) for d in source)
+        return read(io.StringIO(source))
 
     def get_df(self):
         df = self.load()
 
-        columns = self._config.get('columns')
-        if columns:
+        if self._config.columns:
             use_columns = []
             rename_columns = {}
-            for column in columns:
+            for column in self._config.columns:
                 if isinstance(column, str):
                     use_columns.append(column)
                 elif isinstance(column, dict):
@@ -101,29 +109,22 @@ class Dataset:
             if rename_columns:
                 df = df.rename(columns=rename_columns)
 
-        if self._sort and banal.is_mapping(self._sort):
-            df = df.sort_values(**self._sort)
+        if self._config.ops:
+            df = apply_ops(df, self._config.ops)
+
+        index = self._config.dt_index or self._config.index
+        if index not in df.columns:
+            raise ConfigError(f'Please specify a valid index column for `{self.name}`. `{index}` is not valid')
+        if self._config.dt_index:
+            df.index = pd.DatetimeIndex(pd.to_datetime(df[index]))
         else:
-            df = df.sort_index()
-
-        if self._drop_duplicates:
-            if banal.is_mapping(self._drop_duplicates):
-                df = df.drop_duplicates(**self._drop_duplicates)
-            else:
-                df = df.drop_duplicates()
-
-        index = self._config.get('index')
-        if index:
-            if self._has_dt_index:
-                df.index = pd.DatetimeIndex(pd.to_datetime(df[index]))
-            else:
-                df.index = df[index]
-            del df[index]
+            df.index = df[index]
+        del df[index]
 
         return df
 
     def resample(self, interval, method):
-        if not self._has_dt_index:
+        if not self._config.dt_index:
             raise ConfigError(f'Dataset `{self.name}` has no `DatetimeIndex` configured.')
         if method not in RESAMPLE_METHODS.keys():
             raise ConfigError(f'Resampling method `{method}` not valid.')  # noqa

@@ -163,7 +163,7 @@ class DatasetStorage(Storage):
         assert not all((self.is_csv, self.is_json))
         assert any((self.is_csv, self.is_json))
         assert not all((self.url, self.path))
-        assert self.format
+        assert self.format in ('csv', 'json')
         if self.is_remote:
             assert self.url, self.url
         if self.is_local:

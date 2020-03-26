@@ -9,11 +9,13 @@ have them versioned by fetch timestamp or incrementally append new data with
 each update.
 - Turn them into comparable/joinable
   [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
-  objects, apply some general cleaning, and start your analysis.
-- Quick & easy combining of datasets via `pandas.concat`
+  objects, [apply some general operations](#operations), and start your analysis.
+- Quick & easy [combining](#combining) of datasets via `pandas.concat`
 - Simple command-line interface, e.g. for updating via cronojobs
 
 ## Quickstart
+
+[Install via pip](#installation)
 
 Specify your datasets via `yaml` syntax:
 
@@ -165,44 +167,61 @@ datasets:               # definition for datasets
 
 - *optional*
 - specify which column (after renaming was applied) should be the index
+- default: `id`
 
 ```yaml
-    index: id
-    dt_index: true                  # optional specify that it should be a date/time-based index
+    index: person_id                # set column `person_id` as index
 ```
+
+```yaml
+    dt_index: event_date            # specify a date/time-based index instead
+```
+
+### Operations
+
+- *optional*
+
+Apply [any valid operation that is a function attribute of `pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/frame.html)
+(like `drop_duplicates`, `sort_values`, `fillna` ...) in the given order with optional
+function arguments that will be passed to the call.
+
+Default operations: `['drop_duplicates', 'sort_index']`
+
+Disable:
+```yaml
+    ...
+    ops: false
+```
+
+Here are examples:
 
 **Sort**
 
-- *optional*
-- specify arguments for
-  [`pandas.DataFrame.sort_values()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
-- default: [`pandas.DataFrame.sort_index()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_index.html)
+[`pandas.DataFrame.sort_values()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
 
 ```yaml
-    sort:                           # pass parameters for pandas function `sort_values`
-      by:
-        - column1
-        - column2
-      ascending: false
+    ...
+    ops:
+      sort_values:                    # pass parameters for pandas function `sort_values`
+        by:
+          - column1
+          - column2
+        ascending: false
 ```
 
 **De-duplicate**
 
-- *optional*
-- specify arguments for de-duplication
-- default: [`pandas.DataFrame.drop_duplicates()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
-- when using a subset, use in conjunction with the `sort` directive to make
-  sure to keep the right records
+[`pandas.DataFrame.drop_duplicates()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
+- when using a subset, use in conjunction with `sort_values` to make sure to keep the right records
 
 ```yaml
-    drop_duplicates:                # pass parameters for pandas function `drop_duplicates`
-      subset:
-        - column1
-        - column2
-      keep: last
-
     ...
-    drop_duplicates: false          # disable default de-duplication
+    ops:
+      drop_duplicates:              # pass parameters for pandas function `drop_duplicates`
+        subset:
+          - column1
+          - column2
+        keep: last
 ```
 
 ### combining
@@ -221,7 +240,7 @@ TODO: *more to come... (aka merging)*
 ## Usage in your scripts
 
 Once set up, you can start moving the data warehousing out of your analysis
-scripts and focus on the analysis itself :upside_smiling_face:
+scripts and focus on the analysis itself...
 
 ```python
 from datastore import Datastore
@@ -252,7 +271,7 @@ dataset = store.my_time_based_dataset
 s = dataset.daily.mean()
 s.plot()
 
-s = dataset.yearly.sum()
+s = dataset.yearly.count().cumsum()
 s.plot()
 ```
 
