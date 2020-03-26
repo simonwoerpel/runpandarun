@@ -1,6 +1,7 @@
 import yaml
 
 from . import combine
+from .config import Config
 from .exceptions import ConfigError
 from .dataset import Dataset
 from .storage import Storage
@@ -24,10 +25,8 @@ class Datastore:
           index: id
     """
     def __init__(self, config):
-        storage_config = config.get('storage', {})
-        data_root = storage_config.get('data_root', './data/')
-        self._config = config
-        self._storage = Storage(data_root)
+        self.config = Config(config)
+        self._storage = Storage(config)
         self._datasets = config.get('datasets', {})
         self._combine = config.get('combine', [])
         self.validate()
@@ -46,7 +45,7 @@ class Datastore:
 
     @cached_property
     def datasets(self):
-        return [Dataset(name, config, self._storage) for name, config in self._datasets.items()]
+        return [Dataset(name, config, self) for name, config in self._datasets.items()]
 
     @cached_property
     def combined(self):

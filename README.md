@@ -1,17 +1,26 @@
 # datastore
 
-A simple interface for reproducible & persistent data warehousing around small
-data analysis projects with [`pandas`](https://pandas.pydata.org/). Currently
-supports `csv` and `json` files.
+A simple interface written in python for reproducible & persistent data
+warehousing around small data analysis / processing projects with
+[`pandas`](https://pandas.pydata.org/).
 
-- Manage different datasets from different sources, store them on disk,
-have them versioned by fetch timestamp or incrementally append new data with
-each update.
-- Turn them into comparable/joinable
-  [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
-  objects, [apply some general operations](#operations), and start your analysis.
-- Quick & easy [combining](#combining) of datasets via `pandas.concat`
-- Simple command-line interface, e.g. for updating via cronojobs
+Currently supports `csv` and `json` resources.
+
+Useful to build an automated workflow like this:
+
+**1. Download** fetch datasets from different remote or local sources, store
+them somewhere (with respect to versioning / incremental updates), do some
+general cleaning, [processing](#operations) and get a nice
+[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
+for each dataset and
+
+**2. Wrangle** your data somehow
+
+[**3. Publish**] some of the wrangled data somewhere where other services (Google
+Spreadsheet, Datawrapper, even another `Datastore`) can work on further
+
+It includes a simple command-line interface (**TODO**), e.g. for automated
+processing via cronojobs.
 
 ## Quickstart
 
@@ -291,6 +300,46 @@ Available aggregation methods:
 - count
 
 For more advanced resampling, just work on your dataframes directly...
+
+## Publish
+
+After the workflow is done, you can publish some (or all) results.
+
+```python
+dataset = store.my_dataset
+df1 = do_something_with(dataset.df)
+dataset.publish(df1, overwrite=True, include_source=True)
+df2 = do_something_else_with(dataset.df)
+dataset.publish(df2, name='filtered_for_europe', format='json')
+```
+
+For behaviour reasons the `overwrite`-flag must be set explicitly, otherwise it
+will raise if a public file already exists. To avoid overwriting, set a different name.
+
+The `publish()` parameters can be set in the config as well, either globally or
+per dataset:
+
+```yaml
+publish:
+  public_root: /path/to/a/dir/a/webserver/can/serve/
+  include_source: true
+...
+datasets:
+  my_dataset:
+    ...
+    publish:
+      include_source: false
+      format: json
+      name: something
+```
+
+**TODO**: currently only storing to a filesystem on the same machine implemented.
+
+But features could be:
+- goolge spreadsheet
+- ftp
+- s3
+- ...
 
 ## developement
 

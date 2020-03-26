@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
 
     def test_json(self):
         ds = self.store.a_local_json
-        self.assertTrue(ds._config.dt_index)
+        self.assertTrue(ds.config.dt_index)
         df = ds.df
         self.assertIsInstance(df, pd.DataFrame)
         self.assertEqual('date', df.index.name)
@@ -134,17 +134,17 @@ class Test(unittest.TestCase):
         """
         store = Datastore.from_yaml_string(config)
         ds = store.my_dataset
-        self.assertTrue(ds._config.incremental)
+        self.assertTrue(ds.config.incremental)
         items = len(ds.df)
         ds = ds.update()
         self.assertGreater(len(ds.df), items)
         self.assertEqual(len(ds.df), items*2)
 
-        config = store._config
+        config = store.config.to_dict()
         del config['datasets']['my_dataset']['ops']  # enable default ops with drop_duplicates
         store = Datastore.from_dict(config)
         ds = store.my_dataset
-        self.assertTrue(ds._config.incremental)
+        self.assertTrue(ds.config.incremental)
         items = len(ds.df)
         ds = ds.update()
         self.assertEqual(len(ds.df), items)
@@ -163,8 +163,8 @@ class Test(unittest.TestCase):
         """
         store = Datastore.from_yaml_string(config)
         ds = store.datasets[0]
-        self.assertIsInstance(ds._config.ops, list)  # base ops
-        config = store._config
+        self.assertIsInstance(ds.config.ops, list)  # base ops
+        config = store.config.to_dict()
         config['datasets']['my_dataset']['ops'] = [
             {'sort_values': {'ascending': False, 'by': 'value'}},
             {'fillna': {'value': ''}}

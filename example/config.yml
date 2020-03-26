@@ -1,5 +1,7 @@
 storage:
   data_root: datastore-testdata/example
+publish:
+  public_root: datastore-testdata/public
 combine:
   - a_local_csv
   - a_local_json

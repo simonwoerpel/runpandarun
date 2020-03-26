@@ -2,6 +2,8 @@ import io
 import numpy as np
 import pandas as pd
 
+from . import publish as publish_ops
+from .config import Config
 from .exceptions import ConfigError
 from .ops import apply_ops
 from .storage import DatasetStorage
@@ -34,17 +36,6 @@ DEFAULT_CONFIG = {
 }
 
 
-class Config:
-    def __init__(self, config):
-        self._config = config
-
-    def __getattr__(self, attr):
-        return self._config.get(attr)
-
-    def to_dict(self):
-        return self._config
-
-
 # aggregation shortcuts
 class Resample:
     def __init__(self, interval, resample):
@@ -55,10 +46,11 @@ class Resample:
 
 
 class Dataset:
-    def __init__(self, name, config, storage):
+    def __init__(self, name, config, store):
         self.name = name
-        self._config = Config({**DEFAULT_CONFIG, **config})
-        self._storage = DatasetStorage(name, config, storage)
+        self.config = Config({**DEFAULT_CONFIG, **config})
+        self.store = store
+        self._storage = DatasetStorage(name, config, store._storage)
         self._base_df = None
         self._df = None
 
@@ -78,22 +70,28 @@ class Dataset:
     def update(self):
         """refresh from remote source and return new instance"""
         self._storage.get_source(update=True)
-        return Dataset(self.name, self._config.to_dict(), self._storage.storage)
+        return Dataset(self.name, self.config.to_dict(), self.store)
 
     def load(self):
         source = self._storage.get_source()
         read = getattr(pd, f'read_{self._storage.format}')
-        if self._config.incremental:
+        if self.config.incremental:
             return pd.concat(read(io.StringIO(d)) for d in source)
         return read(io.StringIO(source))
+
+    def publish(self, df=None, **kwargs):
+        if df is None:
+            df = self.df
+        config = self.config.update(self.store.config.publish or {})  # FIXME hrmpf
+        return publish_ops.filesystem_publish(self, df, config, **kwargs)
 
     def get_df(self):
         df = self.load()
 
-        if self._config.columns:
+        if self.config.columns:
             use_columns = []
             rename_columns = {}
-            for column in self._config.columns:
+            for column in self.config.columns:
                 if isinstance(column, str):
                     use_columns.append(column)
                 elif isinstance(column, dict):
@@ -109,13 +107,13 @@ class Dataset:
             if rename_columns:
                 df = df.rename(columns=rename_columns)
 
-        if self._config.ops:
-            df = apply_ops(df, self._config.ops)
+        if self.config.ops:
+            df = apply_ops(df, self.config.ops)
 
-        index = self._config.dt_index or self._config.index
+        index = self.config.dt_index or self.config.index
         if index not in df.columns:
             raise ConfigError(f'Please specify a valid index column for `{self.name}`. `{index}` is not valid')
-        if self._config.dt_index:
+        if self.config.dt_index:
             df.index = pd.DatetimeIndex(pd.to_datetime(df[index]))
         else:
             df.index = df[index]
@@ -124,7 +122,7 @@ class Dataset:
         return df
 
     def resample(self, interval, method):
-        if not self._config.dt_index:
+        if not self.config.dt_index:
             raise ConfigError(f'Dataset `{self.name}` has no `DatetimeIndex` configured.')
         if method not in RESAMPLE_METHODS.keys():
             raise ConfigError(f'Resampling method `{method}` not valid.')  # noqa

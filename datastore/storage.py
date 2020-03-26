@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from dateutil import parser
 
+from .config import Config
 from .exceptions import FetchError
 from .util import get_value_from_file, cached_property, ensure_directory
 
@@ -17,7 +18,9 @@ class Storage:
     it's an underlying helper class to handle the filesystem stuff.
     It will not be used by the user directly, they will use `datasets.Datastore`
     """
-    def __init__(self, data_root):
+    def __init__(self, config):
+        self.config = Config(config)
+        data_root = self.config.get('storage').get('data_root', './data/')
         self.data_root = ensure_directory(os.path.abspath(data_root))
 
     def __repr__(self):
@@ -48,7 +51,7 @@ class DatasetStorage(Storage):
     """Storage for a specific dataset"""
     def __init__(self, name, config, storage):
         self.name = name
-        self.config = config
+        self.config = Config(config)
         self.storage = storage
         self.data_root = ensure_directory(os.path.join(storage.data_root, name))
         self.validate()
@@ -61,7 +64,7 @@ class DatasetStorage(Storage):
             self.fetch()
         versions = [v for v in sorted(os.listdir(self.data_root)) if 'last_update' not in v]
 
-        if self.config.get('incremental', False) is True:
+        if self.config.incremental is True:
             # concat all the versions
             return self.get_incremental_sources(versions)
 
@@ -119,8 +122,8 @@ class DatasetStorage(Storage):
 
     def get_request(self):
         url = self.url
-        params = self.config.get('request', {}).get('params')
-        headers = self.config.get('request', {}).get('headers')
+        params = self.config.get('request').get('params')
+        headers = self.config.get('request').get('headers')
         return requests.get(url, params=params, headers=headers)
 
     @cached_property
