@@ -72,6 +72,9 @@ class Test(unittest.TestCase):
                     df = func()
                     self.assertIsInstance(df, pd.DataFrame)
                     self.assertEqual(len(df), len(df.index.year.unique()))
+                    if method == 'count':
+                        self.assertEqual(df.shape[1], 1)
+                        self.assertEqual(list(df.columns), ['count'])
 
     def test_combine_long(self):
         df1 = self.store.a_local_csv.df
