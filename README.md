@@ -16,8 +16,9 @@ for each dataset and
 
 **2. Wrangle** your data somehow
 
-[**3. Publish**] some of the wrangled data somewhere where other services (Google
-Spreadsheet, Datawrapper, even another `Datastore`) can work on further
+[**3. Publish**](#publish) some of the wrangled data somewhere where other
+services (Google Spreadsheet, Datawrapper, even another `Datastore`) can work
+on further
 
 It includes a simple command-line interface (**TODO**), e.g. for automated
 processing via cronojobs.
@@ -313,8 +314,9 @@ df2 = do_something_else_with(dataset.df)
 dataset.publish(df2, name='filtered_for_europe', format='json')
 ```
 
-For behaviour reasons the `overwrite`-flag must be set explicitly, otherwise it
-will raise if a public file already exists. To avoid overwriting, set a different name.
+For behaviour reasons the `overwrite`-flag must be set explicitly (during
+function execution or in config, see below), otherwise it will raise if a
+public file already exists. To avoid overwriting, set a different name.
 
 The `publish()` parameters can be set in the config as well, either globally or
 per dataset:
