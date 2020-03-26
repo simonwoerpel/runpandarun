@@ -2,9 +2,9 @@ import unittest
 
 import pandas as pd
 
-from datastore.dataset import Dataset, RESAMPLE_METHODS, RESAMPLE_INTERVALS
-from datastore.store import Datastore
-from datastore.storage import Storage
+from runpandarun.dataset import Dataset, RESAMPLE_METHODS, RESAMPLE_INTERVALS
+from runpandarun.store import Datastore
+from runpandarun.storage import Storage
 
 
 class Test(unittest.TestCase):

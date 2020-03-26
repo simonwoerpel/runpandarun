@@ -7,7 +7,7 @@ install:
 
 test:
 	rm -rf ./datastore-testdata
-	pytest -s --cov=datastore
+	pytest -s --cov=runpandarun
 	rm -rf ./datastore-testdata
 
 build:

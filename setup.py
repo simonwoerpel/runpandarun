@@ -7,7 +7,7 @@ def readme():
 
 
 setup(
-    name='datastore',
+    name='runpandarun',
     version='0.1',
     description='A simple toolkit for managing data from different sources.',
     long_description=readme(),
@@ -19,11 +19,11 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Utilities'
     ],
-    url='https://github.com/simonwoerpel/simple-datastore',
+    url='https://github.com/simonwoerpel/runpandarun',
     author='Simon Wörpel',
     author_email='simon.woerpel@medienrevolte.de',
     license='MIT',
-    packages=['datastore'],
+    packages=['runpandarun'],
     install_requires=[
         'banal',
         'pyyaml',

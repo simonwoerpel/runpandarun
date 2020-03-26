@@ -3,7 +3,7 @@ import unittest
 
 import pandas as pd
 
-from datastore.store import Datastore
+from runpandarun import Datastore
 
 
 class Test(unittest.TestCase):

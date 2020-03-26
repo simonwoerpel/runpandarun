@@ -1,4 +1,6 @@
-# datastore
+# Run Panda Run
+
+:panda_face: :panda_face: :panda_face: :panda_face: :panda_face: :panda_face: :panda_face:
 
 A simple interface written in python for reproducible & persistent data
 warehousing around small data analysis / processing projects with
@@ -30,7 +32,7 @@ processing via cronojobs.
 Specify your datasets via `yaml` syntax:
 
 ```python
-from datastore import Datastore
+from runpandarun import Datastore
 
 config = """
 datasets:
@@ -58,7 +60,7 @@ other.daily.mean().plot()  # some handy shorthands for pandas
 Organize persistence config and state of datasets:
 
 ```python
-from datastore import Datastore
+from runpandarun import Datastore
 
 store = Datastore.from_yaml('./path/to/datasets.yml')
 dataset = store.my_dataset
@@ -74,11 +76,11 @@ store.update()
 
 Update all:
 
-    $ datastore update --config /path/to/config.yml
+    $ runpandarun update --config /path/to/config.yml
 
 Only specific datasets:
 
-    $ datastore update --config /path/to/config.yml --datasets my_dataset my_other_dataset ...
+    $ runpandarun update --config /path/to/config.yml --datasets my_dataset my_other_dataset ...
 
 ## Installation
 
@@ -86,12 +88,12 @@ Requires python3. Virtualenv use recommended.
 
 Additional dependencies (`pandas` et. al.) will be installed automatically:
 
-    pip install git+https://github.com/simonwoerpel/simple-datastore.git#egg=datastore
+    pip install git+https://github.com/simonwoerpel/runpandarun.git#egg=runpandarun
 
 After this, you should be able to:
 
 ```python
-from datastore import Datastore
+from runpandarun import Datastore
 
 # start the party...
 ```
@@ -253,7 +255,7 @@ Once set up, you can start moving the data warehousing out of your analysis
 scripts and focus on the analysis itself...
 
 ```python
-from datastore import Datastore
+from runpandarun import Datastore
 
 store = Datastore.from_yaml(config)
 
