@@ -99,7 +99,7 @@ class DatasetStorage(Storage):
 
     def get_remote_content(self):
         if self.is_remote:
-            res = requests.get(self.url)
+            res = self.get_request()
             if res.ok:
                 return res.text
             raise FetchError(
@@ -116,6 +116,12 @@ class DatasetStorage(Storage):
         if not set(contents) - set(['last_update']):
             return True
         return self.last_update is None
+
+    def get_request(self):
+        url = self.url
+        params = self.config.get('request', {}).get('params')
+        headers = self.config.get('request', {}).get('headers')
+        return requests.get(url, params=params, headers=headers)
 
     @cached_property
     def is_csv(self):

@@ -1,3 +1,4 @@
+import banal
 import io
 import numpy as np
 import pandas as pd
@@ -42,7 +43,8 @@ class Dataset:
         self._df = None
         self._has_dt_index = config.get('dt_index', False) is True
         self._incremental = config.get('incremental', False) is True
-        self._drop_duplicates = config.get('drop_duplicates', False) is True
+        self._drop_duplicates = config.get('drop_duplicates')
+        self._sort = config.get('sort')
 
         for interval_name, interval in RESAMPLE_INTERVALS.items():
             setattr(self, interval_name, Resample(interval, self.resample))
@@ -76,37 +78,46 @@ class Dataset:
             return pd.read_json(data)
 
     def get_df(self):
-        index = self._config['index']
-        columns = self._config['columns']
-        use_columns = []
-        rename_columns = {}
-        for column in columns:
-            if isinstance(column, str):
-                use_columns.append(column)
-            elif isinstance(column, dict):
-                if len(column) > 1:
-                    raise ConfigError(f'Column mapping for dataset `{self.name}` has errors.')
-                target, source = list(column.items())[0]
-                use_columns.append(source)
-                rename_columns[source] = target
-            else:
-                raise ConfigError(f'Column mapping for dataset `{self.name}` has errors.')
-
         df = self.load()
-        df = df[use_columns]
 
-        if rename_columns:
-            df = df.rename(columns=rename_columns)
+        columns = self._config.get('columns')
+        if columns:
+            use_columns = []
+            rename_columns = {}
+            for column in columns:
+                if isinstance(column, str):
+                    use_columns.append(column)
+                elif isinstance(column, dict):
+                    if len(column) > 1:
+                        raise ConfigError(f'Column mapping for dataset `{self.name}` has errors.')
+                    target, source = list(column.items())[0]
+                    use_columns.append(source)
+                    rename_columns[source] = target
+                else:
+                    raise ConfigError(f'Column mapping for dataset `{self.name}` has errors.')
 
-        if self._has_dt_index:
-            df.index = pd.DatetimeIndex(pd.to_datetime(df[index]))
+            df = df[use_columns]
+            if rename_columns:
+                df = df.rename(columns=rename_columns)
+
+        if self._sort and banal.is_mapping(self._sort):
+            df = df.sort_values(**self._sort)
         else:
-            df.index = df[index]
-        del df[index]
-        df = df.sort_index()
+            df = df.sort_index()
 
         if self._drop_duplicates:
-            df = df.drop_duplicates()
+            if banal.is_mapping(self._drop_duplicates):
+                df = df.drop_duplicates(**self._drop_duplicates)
+            else:
+                df = df.drop_duplicates()
+
+        index = self._config.get('index')
+        if index:
+            if self._has_dt_index:
+                df.index = pd.DatetimeIndex(pd.to_datetime(df[index]))
+            else:
+                df.index = df[index]
+            del df[index]
 
         return df
 

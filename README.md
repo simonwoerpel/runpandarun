@@ -124,6 +124,21 @@ datasets:               # definition for datasets
     json_local:         # absolute or relative path to a file on disk
 ```
 
+**Request params**
+
+- *optional*
+- for each source url, you can pass `params` and `headers` that will feed into
+  [`requests.get()`](https://requests.readthedocs.io/en/master/user/quickstart/#make-a-request)
+
+```yaml
+    csv_url: https://example.org
+    request:
+      params:
+        format: csv
+      header:
+        "api-key": 123abc
+```
+
 **Incremental**
 
 - *optional*
@@ -155,6 +170,39 @@ datasets:               # definition for datasets
     index: id
     dt_index: true                  # optional specify that it should be a date/time-based index
 ```
+
+**Sort**
+
+- *optional*
+- specify arguments for
+  [`pandas.DataFrame.sort_values()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
+- default: [`pandas.DataFrame.sort_index()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_index.html)
+
+```yaml
+    sort:                           # pass parameters for pandas function `sort_values`
+      by:
+        - column1
+        - column2
+      ascending: false
+```
+
+**De-duplicate**
+
+- *optional*
+- specify arguments for de-duplication
+- default: [`pandas.DataFrame.drop_duplicates()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
+- when using a subset, use in conjunction with the `sort` directive to make
+  sure to keep the right records
+
+```yaml
+    drop_duplicates:                # pass parameters for pandas function `drop_duplicates`
+      subset:
+        - column1
+        - column2
+      keep: last
+
+    ...
+    drop_duplicates: false          # disable default de-duplication
 
 ### combining
 
