@@ -1,0 +1,29 @@
+storage:
+  data_root: datastore-testdata/example
+combine:
+  - a_local_csv
+  - a_local_json
+datasets:
+  my_dataset:
+    csv_url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv  # noqa
+    columns:
+      - id: identifier
+      - value
+      - date
+    index: id
+  a_local_csv:
+    csv_local: ./example/testdata.csv
+    columns:
+      - value: amount
+      - state
+      - date
+    index: date
+    dt_index: true
+  a_local_json:
+    json_local: ./example/testdata.json
+    columns:
+      - value: integer
+      - state
+      - date
+    index: date
+    dt_index: true
