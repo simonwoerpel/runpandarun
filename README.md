@@ -268,6 +268,7 @@ Available aggregation methods:
 - mean
 - max
 - min
+- count
 
 For more advanced resampling, just work on your dataframes directly...
 

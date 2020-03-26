@@ -12,7 +12,8 @@ RESAMPLE_METHODS = {
     'sum': np.sum,
     'mean': np.mean,
     'max': np.max,
-    'min': np.min
+    'min': np.min,
+    'count': np.count_nonzero
 }
 
 RESAMPLE_INTERVALS = {
@@ -126,6 +127,10 @@ class Dataset:
             raise ConfigError(f'Dataset `{self.name}` has no `DatetimeIndex` configured.')
         if method not in RESAMPLE_METHODS.keys():
             raise ConfigError(f'Resampling method `{method}` not valid.')  # noqa
+        if method == 'count':  # FIXME implementation?
+            df = self.df.copy()
+            df['count'] = 1
+            return df.resample(interval)[['count']].count()
         return self.df[self.numeric_cols()].resample(interval).apply(RESAMPLE_METHODS[method])
 
     def numeric_cols(self):
