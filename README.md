@@ -113,8 +113,11 @@ passed in:
     Datastore.from_yaml('./path/to/config.yml')
     Datastore.from_dict(config_dict)
 
+To quickly test your config, you can use the command-line:
 
-See [./examples/](./examples/)
+    $ CONFIG=config.yml runpandarun print my_dataset
+
+See [./example/](./example/)
 
 ### top-level options
 
