@@ -1,6 +1,6 @@
 # :panda_face: examples :panda_face:
 
-You only need the yaml files and [install runpandarun](../../README.md#install)
+You only need the yaml files and [install runpandarun](https://github.com/simonwoerpel/runpandarun#installation)
 to work with these examples.
 
 ## rki corona scraper
