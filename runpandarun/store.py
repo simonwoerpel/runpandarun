@@ -43,6 +43,11 @@ class Datastore:
     def __repr__(self):
         return f'<Datastore: {self._storage.data_root}>'
 
+    def __getitem__(self, attr):
+        if attr in self:
+            return getattr(self, attr)
+        raise KeyError(f'Dataset `{attr}` not in `{self}`')
+
     @cached_property
     def datasets(self):
         return [Dataset(name, config, self) for name, config in self._datasets.items()]

@@ -1,0 +1,26 @@
+storage:
+  data_root: ./data/
+publish:
+  public_root: ./data/public/
+  name: rki
+  overwrite: true
+datasets:
+  rki:
+    json_url: https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=OBJECTID&resultOffset=0&resultRecordCount=1000&cacheHint=true
+    json_normalize:
+      record_path: features
+    columns:
+      - id: attributes.RS
+      - name: attributes.GEN
+      - last_update: attributes.last_update
+      - population: attributes.EWZ
+      - cases: attributes.cases
+      - deaths: attributes.deaths
+      - death_rate: attributes.death_rate
+      - cases_per_100k: attributes.cases_per_100k
+      - state: attributes.BL
+    dt_index:
+      column: last_update
+      format: "%d.%m.%Y %H:%M"
+      errors: coerce
+

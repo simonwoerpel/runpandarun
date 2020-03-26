@@ -1,11 +1,9 @@
-import io
 import numpy as np
 import pandas as pd
 
-from . import publish as publish_ops
+from . import publish, load, index, columns, ops
 from .config import Config
 from .exceptions import ConfigError
-from .ops import apply_ops
 from .storage import DatasetStorage
 from .util import cached_property
 
@@ -67,6 +65,18 @@ class Dataset:
     def df(self):
         return self.get_df()
 
+    @cached_property
+    def format(self):
+        return self._storage.format
+
+    @cached_property
+    def is_json(self):
+        return self._storage.is_json
+
+    @cached_property
+    def is_csv(self):
+        return self._storage.is_csv
+
     def update(self):
         """refresh from remote source and return new instance"""
         self._storage.get_source(update=True)
@@ -74,50 +84,29 @@ class Dataset:
 
     def load(self):
         source = self._storage.get_source()
-        read = getattr(pd, f'read_{self._storage.format}')
-        if self.config.incremental:
-            return pd.concat(read(io.StringIO(d)) for d in source)
-        return read(io.StringIO(source))
+
+        if self.is_csv:
+            return load.load_csv(source, self.config)
+
+        if self.is_json:
+            return load.load_json(source, self.config)
 
     def publish(self, df=None, **kwargs):
         if df is None:
             df = self.df
         config = self.config.update(self.store.config.publish or {})  # FIXME hrmpf
-        return publish_ops.filesystem_publish(self, df, config, **kwargs)
+        return publish.filesystem_publish(self, df, config, **kwargs)
 
     def get_df(self):
         df = self.load()
 
         if self.config.columns:
-            use_columns = []
-            rename_columns = {}
-            for column in self.config.columns:
-                if isinstance(column, str):
-                    use_columns.append(column)
-                elif isinstance(column, dict):
-                    if len(column) > 1:
-                        raise ConfigError(f'Column mapping for dataset `{self.name}` has errors.')
-                    target, source = list(column.items())[0]
-                    use_columns.append(source)
-                    rename_columns[source] = target
-                else:
-                    raise ConfigError(f'Column mapping for dataset `{self.name}` has errors.')
-
-            df = df[use_columns]
-            if rename_columns:
-                df = df.rename(columns=rename_columns)
+            df = columns.wrangle_columns(df, self.config)
 
         if self.config.ops:
-            df = apply_ops(df, self.config.ops)
+            df = ops.apply_ops(df, self.config.ops)
 
-        index = self.config.dt_index or self.config.index
-        if index not in df.columns:
-            raise ConfigError(f'Please specify a valid index column for `{self.name}`. `{index}` is not valid')
-        if self.config.dt_index:
-            df.index = pd.DatetimeIndex(pd.to_datetime(df[index]))
-        else:
-            df.index = df[index]
-        del df[index]
+        df = index.apply_index(df, self.config)
 
         return df
 
