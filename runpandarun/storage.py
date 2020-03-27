@@ -1,3 +1,4 @@
+import banal
 import requests
 import os
 
@@ -60,8 +61,11 @@ class DatasetStorage(Storage):
         """
         return the source file content of the dataset
         """
+        if not self.should_store():
+            return self.get_remote_content()
+
         if update or self.should_update():
-            self.fetch()
+            self.fetch(store=self.should_store())
         versions = [v for v in sorted(os.listdir(self.data_root)) if 'last_update' not in v]
 
         if self.config.incremental is True:
@@ -119,6 +123,13 @@ class DatasetStorage(Storage):
         if not set(contents) - set(['last_update']):
             return True
         return self.last_update is None
+
+    def should_store(self):
+        """determine if remote content should be stored in `storage.data_root`"""
+        if self.is_remote:
+            return True
+        if self.is_local:
+            return banal.as_bool(self.config.copy)
 
     def get_request(self):
         url = self.url

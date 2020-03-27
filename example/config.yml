@@ -14,6 +14,7 @@ datasets:
       - date
   a_local_csv:
     csv_local: ./example/testdata.csv
+    copy: true
     read:
       skipfooter: 1
     columns:
@@ -23,6 +24,7 @@ datasets:
     dt_index: date
   a_local_json:
     json_local: ./example/testdata.json
+    copy: true
     read:
       dtype:
         integer: str
