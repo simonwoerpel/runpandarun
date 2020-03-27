@@ -9,7 +9,7 @@ from runpandarun.storage import Storage
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.store = Datastore.from_yaml('./example/config.yml')
+        self.store = Datastore('./example/config.yml')
 
     def test_init(self):
         store = self.store
@@ -108,7 +108,7 @@ class Test(unittest.TestCase):
               - date
             dt_index: date
         """
-        store = Datastore.from_yaml_string(config)
+        store = Datastore(config)
         store.update()
         df1 = store.a_local_csv.df
         df1 = df1.rename(columns={c: f'a_local_csv.{c}' for c in df1.columns})
@@ -132,7 +132,7 @@ class Test(unittest.TestCase):
               incremental: true
               ops: false  # disable drop_duplicates to simulate updated data
         """
-        store = Datastore.from_yaml_string(config)
+        store = Datastore(config)
         ds = store.my_dataset
         self.assertTrue(ds.config.incremental)
         items = len(ds.df)
@@ -142,7 +142,7 @@ class Test(unittest.TestCase):
 
         config = store.config.to_dict()
         del config['datasets']['my_dataset']['ops']  # enable default ops with drop_duplicates
-        store = Datastore.from_dict(config)
+        store = Datastore(config)
         ds = store.my_dataset
         self.assertTrue(ds.config.incremental)
         items = len(ds.df)
@@ -161,7 +161,7 @@ class Test(unittest.TestCase):
                 - value
                 - date
         """
-        store = Datastore.from_yaml_string(config)
+        store = Datastore(config)
         ds = store.datasets[0]
         self.assertIsInstance(ds.config.ops, list)  # base ops
         config = store.config.to_dict()
@@ -169,7 +169,7 @@ class Test(unittest.TestCase):
             {'sort_values': {'ascending': False, 'by': 'value'}},
             {'fillna': {'value': ''}}
         ]
-        store = Datastore.from_dict(config)
+        store = Datastore(config)
         ds = store.datasets[0]
         ds.df
 

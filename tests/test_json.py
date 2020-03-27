@@ -6,7 +6,7 @@ from runpandarun import Datastore
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.store = Datastore.from_yaml('./example/rki.yml')
+        self.store = Datastore('./example/rki.yml')
         self.dataset = self.store.rki
         with open('./example/rki.json') as f:
             self.data = json.load(f)
@@ -19,6 +19,6 @@ class Test(unittest.TestCase):
 
     def test_remote_json(self):
         # TODO this test will fail sooner or later...
-        store = Datastore.from_yaml('./example/rki_remote.yml')
+        store = Datastore('./example/rki_remote.yml')
         ds = store.rki
         self.assertEqual(len(self.data['features']), len(ds.df))

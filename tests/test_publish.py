@@ -8,7 +8,7 @@ from runpandarun import Datastore
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.store = Datastore.from_yaml('./example/config.yml')
+        self.store = Datastore('./example/config.yml')
         self.dataset = self.store.datasets[0]
 
     def test_filesystem_publish(self):

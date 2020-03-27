@@ -43,10 +43,12 @@ datasets:
       - name
       - date
     dt_index: date                        # set date-based index
-  another_dataset: ...
+  another_dataset:
+    json_url: !ENV ${SECRET_URL}          # see below for env vars
+    ...
 """
 
-store = Datastore.from_yaml_string(config)
+store = Datastore(config)
 
 df = store.my_dataset.df   # access `pandas.DataFrame`
 df['name'].plot.hist()
@@ -62,7 +64,7 @@ Organize persistence config and state of datasets:
 ```python
 from runpandarun import Datastore
 
-store = Datastore.from_yaml('./path/to/datasets.yml')
+store = Datastore('./path/to/datasets.yml')
 dataset = store.my_dataset
 
 # update data from remote source:
@@ -78,11 +80,11 @@ Specify config path either via `--config` or env var `CONFIG`
 
 Update all:
 
-    $ runpandarun update --config /path/to/config.yml
+    runpandarun update --config /path/to/config.yml
 
 Only specific datasets and with env var:
 
-    $ CONFIG=/path/to/config.yml runpandarun update my_dataset my_other_dataset ...
+    CONFIG=/path/to/config.yml runpandarun update my_dataset my_other_dataset ...
 
 ## Installation
 
@@ -109,13 +111,19 @@ from runpandarun import Datastore
 The yaml config can be loaded either as string, from file or directly as `dict`
 passed in:
 
-    Datastore.from_yaml_string('...')
-    Datastore.from_yaml('./path/to/config.yml')
-    Datastore.from_dict(config_dict)
+```python
+store = Datastore('./path/to/config.yml')
+store = Datastore(config_dict)
+store = Datastore("""
+    datasets:
+      my_dataset:
+      ...
+""")
+```
 
 To quickly test your config, you can use the command-line:
 
-    $ CONFIG=config.yml runpandarun print my_dataset
+    CONFIG=config.yml runpandarun print my_dataset
 
 See [./example/](./example/)
 
@@ -258,6 +266,23 @@ and decides if it should concat *long* or *wide* (aka `pandas.concat(..., axis=1
 
 TODO: *more to come... (aka merging)*
 
+
+### env vars
+
+For api keys or other secrets, you can put environment variables into the config:
+
+```yaml
+storage:
+  data_root: !ENV '${DATA_ROOT}/data/'
+datasets:
+  google_places:
+    json_url: https://maps.googleapis.com/maps/api/place/findplacefromtext/json
+    request:
+      params:
+        key: !ENV ${GOOGLE_APY_KEY}
+    ...
+```
+
 ## Usage in your scripts
 
 Once set up, you can start moving the data warehousing out of your analysis
@@ -266,7 +291,7 @@ scripts and focus on the analysis itself...
 ```python
 from runpandarun import Datastore
 
-store = Datastore.from_yaml(config)
+store = Datastore(config)
 
 # all your datasets become direct attributes of the store:
 ds = store.my_dataset

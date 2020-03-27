@@ -1,5 +1,3 @@
-import yaml
-
 from . import combine
 from .config import Config
 from .exceptions import ConfigError
@@ -27,8 +25,8 @@ class Datastore:
     def __init__(self, config):
         self.config = Config(config)
         self._storage = Storage(config)
-        self._datasets = config.get('datasets', {})
-        self._combine = config.get('combine', [])
+        self._datasets = self.config.get('datasets', {})
+        self._combine = self.config.get('combine', [])
         self.validate()
         for dataset in self:
             setattr(self, dataset.name, dataset)
@@ -84,21 +82,6 @@ class Datastore:
             dataset.update()
         self._storage.set_ts('last_complete_update')
         self._storage.set_ts('last_update')
-
-    @classmethod
-    def from_yaml(cls, yaml_path):
-        with open(yaml_path) as f:
-            config = yaml.safe_load(f.read())
-        return cls(config)
-
-    @classmethod
-    def from_yaml_string(cls, yaml_str):
-        config = yaml.safe_load(yaml_str)
-        return cls(config)
-
-    @classmethod
-    def from_dict(cls, config):
-        return cls(config)
 
     def validate(self):
         if not len(self._datasets):
