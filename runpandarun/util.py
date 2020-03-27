@@ -1,5 +1,6 @@
 import os
 import sys
+import hashlib
 
 from multiprocessing import Pool, cpu_count
 from slugify import slugify as _slugify
@@ -141,3 +142,25 @@ class cached_property:
             return self
         res = instance.__dict__[self.name] = self.func(instance)
         return res
+
+
+# inspired from https://github.com/alephdata/servicelayer/blob/master/servicelayer/cache.py#L46
+def make_key(*criteria, hash=None, clean=False):
+    """Make a string key out of many criteria."""
+    if hash is not None:
+        if hash is True:
+            hash = 'md5'
+        m = getattr(hashlib, hash)()
+    parts = []
+    for criterion in criteria:
+        if criterion is None:
+            continue
+        criterion = str(criterion)
+        if clean:
+            criterion = slugify(criterion.strip())
+        parts.append(criterion)
+    key = ':'.join(parts)
+    if hash is None:
+        return key
+    m.update(key.encode('utf-8'))
+    return m.hexdigest()
