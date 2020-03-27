@@ -3,6 +3,40 @@
 You only need the yaml files and [install runpandarun](https://github.com/simonwoerpel/runpandarun#installation)
 to work with these examples.
 
+- [google places api](#google-places-api)
+- [rki corona scraper](#rki-corona-scraper)
+
+
+## google places api
+
+
+get a csv:
+
+        $ CONFIG=google_api.yml runpandarun print places
+
+Adjust the request params as described here: https://developers.google.com/places/web-service/search
+
+[yaml file](./google_api.yml)
+
+```yaml
+datasets:
+  places:
+    json_url: https://maps.googleapis.com/maps/api/place/findplacefromtext/json
+    request:
+      params:
+        key: INSERT KEY HERE  # will work on something to ues env vars here...
+        language: de
+        inputtype: textquery
+        fields: formatted_address,name,place_id
+        input: Supermarkt
+    json_normalize:
+      record_path: candidates
+    columns:
+      - formatted_address
+      - name
+      - id: place_id
+```
+
 ## rki corona scraper
 
 automatized download, cleaning and publish of RKI dashboard data without a line
