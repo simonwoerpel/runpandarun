@@ -23,4 +23,12 @@ datasets:
       column: last_update
       format: "%d.%m.%Y %H:%M"
       errors: coerce
-
+    incremental: true
+    ops:
+      - sort_values:
+          by:
+            - last_update
+          ascending: false
+      - drop_duplicates:
+          subset:
+            - id

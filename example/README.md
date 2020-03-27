@@ -41,4 +41,16 @@ datasets:
       # options for `pd.to_datetime`:
       format: "%d.%m.%Y %H:%M"
       errors: coerce
+    # the data is updated, so we specify to include all downloaded data
+    # but only show the latest data for each region via `sort_values` & `drop_duplicates`
+    incremental: true
+    ops:
+      - sort_values:
+          by:
+            - id
+            - last_update
+          reverse: true
+      - drop_duplicates:
+          subset:
+            - id
 ```
