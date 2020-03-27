@@ -172,3 +172,8 @@ class Test(unittest.TestCase):
         store = Datastore.from_dict(config)
         ds = store.datasets[0]
         ds.df
+
+    def test_json_dtype(self):
+        store = self.store
+        df = store.a_local_json.df
+        self.assertTrue(df['value'].dtype.name == 'object')

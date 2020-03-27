@@ -14,6 +14,8 @@ datasets:
       - date
   a_local_csv:
     csv_local: ./example/testdata.csv
+    read:
+      skipfooter: 1
     columns:
       - value: amount
       - state
@@ -21,6 +23,9 @@ datasets:
     dt_index: date
   a_local_json:
     json_local: ./example/testdata.json
+    read:
+      dtype:
+        integer: str
     columns:
       - value: integer
       - state
