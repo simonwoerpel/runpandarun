@@ -83,7 +83,7 @@ def get_files(directory, condition=lambda x: True):
     that match `condition` (default: all) incl. subdirectories
     """
     return [(f.split('.')[0], os.path.join(d, f)) for d, _, fnames in os.walk(directory)
-            for f in fnames if condition(f, d)]
+            for f in fnames if condition(os.path.join(d, f))]
 
 
 # https://docs.djangoproject.com/en/2.2/ref/utils/#module-django.utils.functional
