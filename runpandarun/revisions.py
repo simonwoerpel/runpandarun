@@ -16,7 +16,7 @@ class DatasetRevisions:
         if os.path.isfile(self._fp(item)):
             with open(self._fp(item), 'rb') as f:
                 return pickle.load(f)
-        raise FileNotFoundError('Revision `{name}` not found for dataset `{self._dataset}`')
+        raise FileNotFoundError(f'Revision `{item}` not found for dataset `{self._dataset}`')
 
     def __iter__(self):
         for item, _ in self._get_files():
