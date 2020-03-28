@@ -82,6 +82,10 @@ class Dataset:
     def is_csv(self):
         return self._storage.is_csv
 
+    @cached_property
+    def url(self):
+        return self._storage.remote_url
+
     def update(self):
         """refresh from remote source and return new instance"""
         self._storage.get_source(update=True)

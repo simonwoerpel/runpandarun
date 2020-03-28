@@ -7,13 +7,19 @@ from .store import Datastore
 from .exceptions import ConfigError
 
 
+log = logging.getLogger(__name__)
+
+
 def update(args):
-    if args.datasets:
-        for dataset in args.store:
-            if dataset.name in args.datasets:
+    for dataset in args.store:
+        should_update = not len(args.datasets) or (dataset.name in args.datasets)
+        if should_update:
+            log.info(f'Updating `{dataset}` from `{dataset.url}` ...')
+            try:
                 dataset.update()
-    else:
-        args.store.update()
+                log.info(f'Updated `{dataset}`.')
+            except Exception as e:
+                log.error(f'{e.__class__.__name__}: {e}')
 
 
 def print_(args):

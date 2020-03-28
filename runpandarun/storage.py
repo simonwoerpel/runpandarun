@@ -172,6 +172,13 @@ class DatasetStorage(Storage):
         if self.is_local:
             return self.config.get(f'{self.format}_local')
 
+    @cached_property
+    def remote_url(self):
+        if self.is_remote:
+            return self.url
+        path = os.path.abspath(self.path)
+        return f'file://{path}'
+
     def validate(self):
         """validate the config"""
         assert not all((self.is_remote, self.is_local))
