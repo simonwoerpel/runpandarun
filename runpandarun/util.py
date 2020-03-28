@@ -79,12 +79,11 @@ def ensure_directory(fp):
 
 def get_files(directory, condition=lambda x: True):
     """
-    return tuples of (hash, path) for files in given `directory`
+    return tuples of (filename, path) for files in given `directory`
     that match `condition` (default: all) incl. subdirectories
-    `hash` is detected via filename
     """
     return [(f.split('.')[0], os.path.join(d, f)) for d, _, fnames in os.walk(directory)
-            for f in fnames if condition(f)]
+            for f in fnames if condition(f, d)]
 
 
 # https://docs.djangoproject.com/en/2.2/ref/utils/#module-django.utils.functional
