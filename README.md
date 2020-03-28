@@ -436,7 +436,7 @@ for, right?
 ```python
 ds = store.my_dataset
 df = ds.df
-ds['tansformed'] = df.T
+ds.revisions.save('tansformed', df.T)
 ```
 
 **load a revision**

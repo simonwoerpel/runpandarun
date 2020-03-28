@@ -17,7 +17,7 @@ class Test(unittest.TestCase):
     def test_revisions(self):
         ds = self.ds
         self.assertIsInstance(ds.revisions, DatasetRevisions)
-        ds['transformed'] = ds.df.T
+        ds.revisions.save('transformed', ds.df.T)
         self.assertIn('transformed', ds.revisions)
         self.assertIn('transformed', ds.revisions.list())
         self.assertTrue(os.path.isfile(self._fp('transformed')))
@@ -29,7 +29,7 @@ class Test(unittest.TestCase):
         # store other stuff (anything that pickle can handle)
         now = datetime.now()
         foo = {'bar': now}
-        ds['foo'] = foo
+        ds.revisions.save('foo', foo)
         # retrieve
         foo = ds['foo']
         self.assertIn('foo', ds.revisions)

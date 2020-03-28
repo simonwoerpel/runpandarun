@@ -67,7 +67,8 @@ class Dataset:
         return self.revisions[item]
 
     def __setitem__(self, name, item):
-        self.revisions[name] = item
+        # secret hack, should not be used by real people
+        self.revisions.save(name, item)
 
     @cached_property
     def df(self):
