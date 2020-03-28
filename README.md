@@ -423,16 +423,20 @@ At any time between reading data in and publishing you can store and get
 revisions of a dataset. This is usually a `pd.DataFrame` in an intermediate
 state, e.g. after date enriching but before analysis.
 
-This feature can be used in an automated processing workflow, where jupyter
-notebooks that follow the naming-convention `process--*` can use these
-revisions easily.
+This feature can be used in an automated processing workflow consisting of
+multiple notebooks to share DataFrames between each other. The underlying
+storage mechanism is [pickle](https://docs.python.org/3/library/pickle.html) to
+make sure a DataFrame revision behaves as expected. This comes with the
+downside that pickle's are not safe to share between different systems, but to
+re-create them in another environment, that's what a reproducible workflow is
+for, right?
 
 **store a revision**
 
 ```python
 ds = store.my_dataset
 df = ds.df
-ds.save(df.T, 'transformed')
+ds['tansformed'] = df.T
 ```
 
 **load a revision**
@@ -441,6 +445,23 @@ ds.save(df.T, 'transformed')
 ds = store.my_dataset
 df = ds['transformed']
 ```
+
+**show available revisions**
+```python
+ds = store.my_dataset
+ds.revisions.show()
+```
+
+**iterate through revisions**
+```python
+ds = store.my_dataset
+for df in ds.revisions:
+  do_something(df)
+```
+
+*Pro tip* you can go crazy and use this mechanism to store & retrieve *any*
+object that is serializable via
+[pickle](https://docs.python.org/3/library/pickle.html)
 
 ## cli
 

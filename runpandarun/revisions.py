@@ -1,7 +1,7 @@
 import os
-import pandas as pd
+import pickle
 
-from .util import cached_property, ensure_directory, get_files
+from .util import ensure_directory, get_files
 
 
 class DatasetRevisions:
@@ -9,31 +9,28 @@ class DatasetRevisions:
         self._dataset = dataset
         self._data_root = ensure_directory(os.path.join(dataset._storage.data_root, 'revisions'))
 
-    def show(self):
-        return self._names
+    def list(self):
+        return [n for n, _ in self._get_files()]
 
     def __getitem__(self, item):
         if os.path.isfile(self._fp(item)):
-            return pd.read_csv(self._fp(item), index_col=0)
+            with open(self._fp(item), 'rb') as f:
+                return pickle.load(f)
         raise FileNotFoundError('Revision `{name}` not found for dataset `{self._dataset}`')
 
-    def __setitem__(self, name, df):
-        df.to_csv(self._fp(name))
+    def __setitem__(self, name, item):
+        with open(self._fp(name), 'wb') as f:
+            pickle.dump(item, f)
 
     def __iter__(self):
-        for _, fp in self._files:
-            yield pd.read_csv(fp)
+        for item, _ in self._get_files():
+            yield self[item]
 
     def __contains__(self, item):
-        return item in self._names
+        return item in self.list()
 
     def _fp(self, name):
-        return os.path.join(self._data_root, f'{name}.csv')
+        return os.path.join(self._data_root, f'{name}.pkl')
 
-    @cached_property
-    def _files(self):
-        return [f for f in get_files(self._data_root, lambda x: x.endswith('.csv'))]
-
-    @cached_property
-    def _names(self):
-        return [n for n, _ in self._files]
+    def _get_files(self):
+        return [f for f in get_files(self._data_root, lambda x: x.endswith('.pkl'))]

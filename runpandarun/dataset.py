@@ -66,6 +66,9 @@ class Dataset:
     def __getitem__(self, item):
         return self.revisions[item]
 
+    def __setitem__(self, name, item):
+        self.revisions[name] = item
+
     @cached_property
     def df(self):
         return self.get_df()
@@ -105,9 +108,6 @@ class Dataset:
             df = self.df
         config = self.config.update(self.store.config.publish or {})  # FIXME hrmpf
         return publish.filesystem_publish(self, df, config, **kwargs)
-
-    def save(self, df, name):
-        self.revisions[name] = df
 
     def get_df(self):
         df = self.load()
