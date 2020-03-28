@@ -1,3 +1,5 @@
+import os
+
 from . import combine
 from .config import Config
 from .exceptions import ConfigError
@@ -22,7 +24,11 @@ class Datastore:
             - date
           index: id
     """
-    def __init__(self, config):
+    def __init__(self, config=None):
+        if config is None:
+            config = os.getenv('CONFIG')
+            if config is None:
+                raise ConfigError('Please specify path to config yaml to `Datastore` or set via env var.')
         self.config = Config(config)
         self._storage = Storage(config)
         self._datasets = self.config.get('datasets', {})

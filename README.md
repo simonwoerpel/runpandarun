@@ -32,10 +32,7 @@ processing via cronjobs.
 
 Specify your datasets via `yaml` syntax:
 
-```python
-from runpandarun import Datastore
-
-config = """
+```yaml
 datasets:
   my_dataset:
     csv_url: http://example.org/data.csv  # url to fetch csv file from
@@ -47,32 +44,47 @@ datasets:
   another_dataset:
     json_url: !ENV ${SECRET_URL}          # see below for env vars
     ...
-"""
-
-store = Datastore(config)
-
-df = store.my_dataset.df   # access `pandas.DataFrame`
-df['name'].plot.hist()
-
-other = store.another_dataset
-other.daily.mean().plot()  # some handy shorthands for pandas
-
-# do your beloved pandas stuff...
 ```
 
-Organize persistence config and state of datasets:
+store this as a file, and set the env var `CONFIG` to the path:
+
+        export CONFIG=./path/to/config.yml
 
 ```python
-from runpandarun import Datastore
+from runpandarun.datasets import my_dataset, another_dataset
 
-store = Datastore('./path/to/datasets.yml')
-dataset = store.my_dataset
+df = my_dataset.df
+df['name'].plot.hist()
+
+another_dataset.daily.mean().plot()  # some handy shorthands for pandas
+```
+
+Handle data persistence and state of datasets:
+
+```python
+from runpandarun.datasets import my_dataset
 
 # update data from remote source:
-dataset = dataset.update()
+my_dataset = my_dataset.update()
 
 # update complete store:
+from runpandarun import Datastore
+
+store = Datastore()
 store.update()
+
+# save a revision
+df = my_dataset.df
+df = wrangle(df)
+my_dataset.save(df, 'wrangled')
+
+# get this revision (in another script)
+df = my_dataset['wrangled']
+
+# publish
+df = my_dataset.df
+clean(df)
+my_dataset.publish(df, name='cleaned', overwrite=True)
 ```
 
 Update your datastore from the command-line (for use in cronjobs e.g.)
@@ -109,10 +121,23 @@ from runpandarun import Datastore
 
 ## Config
 
-The yaml config can be loaded either as string, from file or directly as `dict`
-passed in:
+**Easy**
+
+Set an environment variable `CONFIG` pointing to your yaml file.
+
+`runpandarun` will find your config and you are all set (see [quickstart](#quickstart))
+
+**Manually**
+
+Of course you can initialize the config manually:
+
+- from a file
+- as yaml string
+- as a python dict
 
 ```python
+from runpandarun import Datastore
+
 store = Datastore('./path/to/config.yml')
 store = Datastore(config_dict)
 store = Datastore("""
@@ -122,21 +147,26 @@ store = Datastore("""
 """)
 ```
 
-To quickly test your config, you can use the command-line:
+To quickly test your config for a dataset named `my_dataset`, you can use the
+command-line (this will print the generated csv to stdout):
 
     CONFIG=config.yml runpandarun print my_dataset
 
-See [./example/](./example/)
+### examples
+
+See the yaml files in [./example/](./example/)
 
 ### top-level options
 
 ```yaml
 storage:
-  data_root: ./path/    # absolute or relative path where to store the files
+  data_root: ./path/                    # absolute or relative path where to store the files
+publish:
+  public_root: !ENV ${PUBLIC_ROOT}      # where to store published data, e.g. a path to a webserver root via env var
 combine:
-  - dataset1            # keys of defined datasets for quick merging
+  - dataset1                            # keys of defined datasets for quick merging
   - dataset2
-datasets:               # definition for datasets
+datasets:                               # definition for datasets
   dataset1:
     csv_url: ...
 ```
@@ -205,6 +235,12 @@ datasets:               # definition for datasets
 
 ```yaml
     dt_index: event_date            # specify a date/time-based index instead
+```
+
+```yaml
+    dt_index:
+      column: event_date
+      format: "%d.%m.%Y"
 ```
 
 ### Operations
