@@ -86,7 +86,7 @@ def main():
     logging.basicConfig(stream=sys.stderr, level=getattr(logging, args.loglevel))
 
     if args.func in ENTRIES:
-        args.store = Datastore.from_yaml(args.config)
+        args.store = Datastore(args.config)
         ENTRIES[args.func](args)
     else:
         raise Exception('`%s` is not a valid command.' % args.func)
