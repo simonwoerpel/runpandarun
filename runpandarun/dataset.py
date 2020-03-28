@@ -4,6 +4,7 @@ import pandas as pd
 from . import publish, load, index, columns, ops
 from .config import Config
 from .exceptions import ConfigError
+from .revisions import DatasetRevisions
 from .storage import DatasetStorage
 from .util import cached_property
 
@@ -51,6 +52,7 @@ class Dataset:
         self._storage = DatasetStorage(name, config, store._storage)
         self._base_df = None
         self._df = None
+        self.revisions = DatasetRevisions(self)
 
         for interval_name, interval in RESAMPLE_INTERVALS.items():
             setattr(self, interval_name, Resample(interval, self.resample))
@@ -60,6 +62,9 @@ class Dataset:
 
     def __repr__(self):
         return f'<Dataset: {self.name}>'
+
+    def __getitem__(self, item):
+        return self.revisions[item]
 
     @cached_property
     def df(self):
@@ -96,6 +101,9 @@ class Dataset:
             df = self.df
         config = self.config.update(self.store.config.publish or {})  # FIXME hrmpf
         return publish.filesystem_publish(self, df, config, **kwargs)
+
+    def save(self, df, name):
+        self.revisions[name] = df
 
     def get_df(self):
         df = self.load()

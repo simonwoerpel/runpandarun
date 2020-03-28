@@ -16,7 +16,8 @@ general cleaning, [processing](#operations) and get a nice
 [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
 for each dataset and
 
-**2. Wrangle** your data somehow
+**2. Wrangle** your data somehow, store and load [revisions](#revisions) to
+share *source of truth* between notebooks or scripts.
 
 [**3. Publish**](#publish) some of the wrangled data somewhere where other
 services (Google Spreadsheet, Datawrapper, even another `Datastore`) can work
@@ -379,6 +380,31 @@ But features could be:
 - s3
 - ...
 
+
+## Revisions
+
+At any time between reading data in and publishing you can store and get
+revisions of a dataset. This is usually a `pd.DataFrame` in an intermediate
+state, e.g. after date enriching but before analysis.
+
+This feature can be used in an automated processing workflow, where jupyter
+notebooks that follow the naming-convention `process--*` can use these
+revisions easily.
+
+**store a revision**
+
+```python
+ds = store.my_dataset
+df = ds.df
+ds.save(df.T, 'transformed')
+```
+
+**load a revision**
+
+```python
+ds = store.my_dataset
+df = ds['transformed']
+```
 
 ## cli
 

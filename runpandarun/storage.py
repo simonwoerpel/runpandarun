@@ -7,7 +7,7 @@ from dateutil import parser
 
 from .config import Config
 from .exceptions import FetchError
-from .util import get_value_from_file, cached_property, ensure_directory
+from .util import get_value_from_file, cached_property, ensure_directory, get_files
 
 
 class Storage:
@@ -66,7 +66,9 @@ class DatasetStorage(Storage):
 
         if update or self.should_update():
             self.fetch(store=self.should_store())
-        versions = [v for v in sorted(os.listdir(self.data_root)) if 'last_update' not in v]
+
+        versions = get_files(self.data_root, lambda x: 'last_update' not in x)
+        versions = sorted([v for _, v in versions])
 
         if self.config.incremental is True:
             # concat all the versions
