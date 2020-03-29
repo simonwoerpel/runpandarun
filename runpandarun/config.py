@@ -73,6 +73,12 @@ class Config:
     def __get__(self, attr, default=None):
         return self._config.get(attr, default or {})
 
+    def __contains__(self, item, other):
+        return item in self._config
+
+    def __iteritems__(self):
+        return self._config.items()
+
     def get(self, attr, default=None):
         return self.__get__(attr, default)
 

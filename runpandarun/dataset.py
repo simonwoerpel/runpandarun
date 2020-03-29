@@ -54,6 +54,7 @@ class Dataset:
         self._df = None
         self.revisions = DatasetRevisions(self)
 
+        # provide handy pd shortcuts
         for interval_name, interval in RESAMPLE_INTERVALS.items():
             setattr(self, interval_name, Resample(interval, self.resample))
 
