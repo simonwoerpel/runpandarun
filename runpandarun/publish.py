@@ -77,7 +77,7 @@ class GoogleCloudHandler(BaseHandler):
     @cached_property
     def blob(self):
         storage_client = gcloud_storage.Client()
-        bucket = storage_client.bucket(self.config.bucket_name)
+        bucket = storage_client.bucket(self.config.bucket)
         return bucket.blob(self.get_file_path())
 
     def check_exists(self):
@@ -87,7 +87,7 @@ class GoogleCloudHandler(BaseHandler):
         content_type = 'text/csv'
         if self.format == 'json':
             content_type = 'application/json'
-        content = self.dump(**self.config.pd_args)
+        content = self.dump(**(self.config.pd_args or {}))
         self.blob.upload_from_string(content, content_type, )
         self.blob.make_public()
         return self.blob.public_url
