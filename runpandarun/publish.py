@@ -96,8 +96,8 @@ def _publish(dataset, df, config, **kwargs):
         handler = HANDLERS.get(handler_name)
         if handler is None:
             raise ConfigError(f'Publish `{dataset}`: handler `{handler}` not valid')
-        config = config.update(handler_config).update(kwargs)
-        handler = handler(dataset, df, config)
+        _config = config.update(handler_config).update(kwargs)
+        handler = handler(dataset, df, _config)
         yield handler.publish()
 
 

@@ -31,7 +31,12 @@ def publish(args):
     for dataset in args.store:
         should_publish = not args.datasets or (dataset.name in args.datasets)
         if should_publish:
-            dataset.publish()
+            log.info(f'Publishing `{dataset}` ...')
+            try:
+                dataset.publish()
+                log.info(f'Published `{dataset}`.')
+            except Exception as e:
+                log.error(f'{e.__class__.__name__}: {e}')
 
 
 ENTRIES = {
