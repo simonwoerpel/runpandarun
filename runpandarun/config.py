@@ -70,6 +70,9 @@ class Config:
     def __getattr__(self, attr):
         return self._config.get(attr)
 
+    def __getitem__(self, item):
+        return self._config.get(item)
+
     def __get__(self, attr, default=None):
         return self._config.get(attr, default or {})
 

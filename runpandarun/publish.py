@@ -1,6 +1,7 @@
 import banal
 import os
 import google.cloud.storage as gcloud_storage
+from datetime import datetime
 from urllib.parse import urljoin
 
 from .exceptions import ConfigError
@@ -18,6 +19,7 @@ class BaseHandler:
         self.name = config.get('name', dataset.name)
         self.format = config.get('format', dataset.format)
         self.overwrite = config.get('overwrite')
+        self.with_timestamp = config.get('with_timestamp')
         self.dump = getattr(df, f'to_{self.format}')
 
     def publish(self):
@@ -30,6 +32,9 @@ class BaseHandler:
             return self.store()
 
     def get_file_name(self):
+        if self.with_timestamp:
+            ts = datetime.now().isoformat()
+            return f'{self.name}.{ts}.{self.format}'
         return f'{self.name}.{self.format}'
 
     def get_file_path(self):
@@ -92,7 +97,7 @@ HANDLERS = {c.label: c for c in (FileSystemHandler, GoogleCloudHandler)}
 
 
 def _publish(dataset, df, config, **kwargs):
-    for handler_name, handler_config in config.publish.items():
+    for handler_name, handler_config in config.publish['handlers'].items():
         handler = HANDLERS.get(handler_name)
         if handler is None:
             raise ConfigError(f'Publish `{dataset}`: handler `{handler}` not valid')

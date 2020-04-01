@@ -1,8 +1,8 @@
 import banal
 import os
 import unittest
-
 import pandas as pd
+from datetime import datetime
 
 from runpandarun import Datastore
 
@@ -10,7 +10,7 @@ from runpandarun import Datastore
 class Test(unittest.TestCase):
     def setUp(self):
         self.store = Datastore('./example/config.yml')
-        self.config = self.store.config.publish['filesystem']
+        self.config = self.store.config.publish['handlers']['filesystem']
         self.dataset = self.store.datasets[0]
 
     def test_filesystem_publish(self):
@@ -46,8 +46,16 @@ class Test(unittest.TestCase):
         os.environ['FILESYSTEM_PUBLISH'] = '0'
         os.environ['CONFIG'] = './example/config.yml'
         store = Datastore()
-        self.assertFalse(banal.as_bool(store.config.publish['filesystem']['enabled']))
+        self.assertFalse(banal.as_bool(store.config.publish['handlers']['filesystem']['enabled']))
         res = store.datasets[0].publish()
         self.assertIn('not enabled', res[0])
         # re-enable for further tests
         os.environ['FILESYSTEM_PUBLISH'] = 'true'
+
+    def test_publish_with_timestamp(self):
+        config = self.store.config
+        config['publish']['handlers']['filesystem']['with_timestamp'] = True
+        store = Datastore(config)
+        fp = store.datasets[0].publish(name='test_with_ts')[0]
+        date = datetime.now().date().isoformat()
+        self.assertIn(date, fp)
