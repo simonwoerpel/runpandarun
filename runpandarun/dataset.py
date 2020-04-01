@@ -108,8 +108,8 @@ class Dataset:
     def publish(self, df=None, **kwargs):
         if df is None:
             df = self.df
-        config = self.config.update(self.store.config.publish or {})  # FIXME hrmpf
-        return publish.filesystem_publish(self, df, config, **kwargs)
+        config = self.config.update({'publish': self.store.config.publish or {}})  # FIXME hrmpf
+        return publish.publish(self, df, config, **kwargs)
 
     def get_df(self):
         df = self.load()

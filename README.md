@@ -162,7 +162,10 @@ See the yaml files in [./example/](./example/)
 storage:
   data_root: ./path/                    # absolute or relative path where to store the files
 publish:
-  public_root: !ENV ${PUBLIC_ROOT}      # where to store published data, e.g. a path to a webserver root via env var
+  filesystem:
+    public_root: !ENV ${PUBLIC_ROOT}    # where to store published data, e.g. a path to a webserver root via env var
+  gcloud:
+    bucket: !ENV ${GOOGLE_BUCKET}       # or in a google cloud storage bucket...
 combine:
   - dataset1                            # keys of defined datasets for quick merging
   - dataset2
@@ -392,23 +395,30 @@ function execution or in config, see below), otherwise it will raise if a
 public file already exists. To avoid overwriting, set a different name.
 
 The `publish()` parameters can be set in the config as well, either globally or
-per dataset:
+per dataset, specified for each handler (currently `filesystem` or `gcloud`).
+Dataset-specific settings overwrite global ones for the storage handler.
 
 ```yaml
 publish:
-  public_root: /path/to/a/dir/a/webserver/can/serve/
-  include_source: true
+  filesystem:
+    public_root: /path/to/a/dir/a/webserver/can/serve/
+    include_source: true
+  gcloud:
+    bucket: my-bucket-name
+    include_source: false
 ...
 datasets:
   my_dataset:
     ...
     publish:
-      include_source: false
-      format: json
-      name: something
+      gcloud:
+        bucket: another-bucket
+        include_source: true
+        format: json
+        name: something
 ```
 
-**TODO**: currently only storing to a filesystem on the same machine implemented.
+**TODO**: currently only storing to a filesystem or google cloud storage implemented.
 
 But features could be:
 - goolge spreadsheet

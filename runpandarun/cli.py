@@ -23,14 +23,15 @@ def update(args):
 
 
 def print_(args):
-    df = args.store[args.dataset].df
+    df = args.store[args.dataset].get_df()
     df.to_csv(sys.stdout)
 
 
 def publish(args):
     for dataset in args.store:
         should_publish = not args.datasets or (dataset.name in args.datasets)
-        should_publish and dataset.publish()
+        if should_publish:
+            dataset.publish()
 
 
 ENTRIES = {

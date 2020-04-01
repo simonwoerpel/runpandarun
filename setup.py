@@ -35,7 +35,8 @@ setup(
         'pandas',
         'requests',
         'awesome-slugify',
-        'python-dateutil'
+        'python-dateutil',
+        'google-cloud-storage'
     ],
     zip_safe=False
 )
