@@ -1,3 +1,4 @@
+import banal
 import os
 import unittest
 
@@ -40,3 +41,13 @@ class Test(unittest.TestCase):
         self.assertIn('transformed', fp)
         _df = pd.read_csv(fp, index_col=0)
         self.assertTrue(df.shape == _df.shape)
+
+    def test_disabled_handler(self):
+        os.environ['FILESYSTEM_PUBLISH'] = '0'
+        os.environ['CONFIG'] = './example/config.yml'
+        store = Datastore()
+        self.assertFalse(banal.as_bool(store.config.publish['filesystem']['enabled']))
+        res = store.datasets[0].publish()
+        self.assertIn('not enabled', res[0])
+        # re-enable for further tests
+        os.environ['FILESYSTEM_PUBLISH'] = 'true'

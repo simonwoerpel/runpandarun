@@ -1,3 +1,4 @@
+import banal
 import os
 import google.cloud.storage as gcloud_storage
 from urllib.parse import urljoin
@@ -10,6 +11,7 @@ class BaseHandler:
     label = None
 
     def __init__(self, dataset, df, config):
+        self.enabled = banal.as_bool(config.enabled)
         self.dataset = dataset
         self.df = df
         self.config = config
@@ -19,6 +21,8 @@ class BaseHandler:
         self.dump = getattr(df, f'to_{self.format}')
 
     def publish(self):
+        if self.enabled is False:
+            return f'Publish handler `{self.label}` is not enabled in this environment`'
         exists = self.check_exists()
         if exists and self.overwrite not in (True, False):
             raise FileExistsError(f'File `{self.get_file_path()}` already exists in {self.label}')

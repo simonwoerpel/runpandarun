@@ -164,8 +164,10 @@ storage:
 publish:
   filesystem:
     public_root: !ENV ${PUBLIC_ROOT}    # where to store published data, e.g. a path to a webserver root via env var
+    enabled: true
   gcloud:
     bucket: !ENV ${GOOGLE_BUCKET}       # or in a google cloud storage bucket...
+    enabled: !ENV ${GOOGLE_PUBLISH}     # enable or disable a publish handler based on environment
 combine:
   - dataset1                            # keys of defined datasets for quick merging
   - dataset2

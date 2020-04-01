@@ -2,6 +2,7 @@ storage:
   data_root: datastore-testdata/example
 publish:
   filesystem:
+    enabled: !ENV ${FILESYSTEM_PUBLISH}
     public_root: datastore-testdata/public
 combine:
   - a_local_csv
