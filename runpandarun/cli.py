@@ -33,8 +33,8 @@ def publish(args):
         if should_publish:
             log.info(f'Publishing `{dataset}` ...')
             try:
-                dataset.publish()
-                log.info(f'Published `{dataset}`.')
+                for res in dataset.publish():
+                    log.info(f'Published `{dataset}` to `{res}`.')
             except Exception as e:
                 log.error(f'{e.__class__.__name__}: {e}')
 
