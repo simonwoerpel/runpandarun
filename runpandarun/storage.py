@@ -67,7 +67,7 @@ class DatasetStorage(Storage):
         if update or self.should_update():
             self.fetch(store=self.should_store())
 
-        versions = get_files(self.data_root, lambda x: 'last_update' not in x)
+        versions = get_files(self.data_root, lambda x: 'last_update' not in x and 'revisions' not in x)
         versions = sorted([v for _, v in versions])
 
         if self.config.incremental is True:
