@@ -15,7 +15,7 @@ class Test(unittest.TestCase):
         store = self.store
         self.assertIn('datastore-testdata', repr(store))
         self.assertIn('datastore-testdata', repr(store._storage))
-        self.assertIn('datastore-testdata', store._storage.data_root)
+        self.assertIn('datastore-testdata', store._storage.backend.get_base_path())
 
     def test_store(self):
         store = self.store
@@ -88,7 +88,8 @@ class Test(unittest.TestCase):
         # add a dummy (copied) dataset
         config = """
         storage:
-          data_root: datastore-testdata/test_combine
+          filesystem:
+            data_root: datastore-testdata/test_combine
         combine:
           - a_local_csv
           - same_but_different
@@ -121,7 +122,8 @@ class Test(unittest.TestCase):
     def test_incremental(self):
         config = """
         storage:
-          data_root: datastore-testdata/test_incremental
+          filesystem:
+            data_root: datastore-testdata/test_incremental
         datasets:
           my_dataset:
               csv_url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv  # noqa
@@ -152,7 +154,8 @@ class Test(unittest.TestCase):
     def test_ops(self):
         config = """
         storage:
-          data_root: datastore-testdata/test_incremental
+          filesystem:
+            data_root: datastore-testdata/test_incremental
         datasets:
           my_dataset:
               csv_url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv  # noqa

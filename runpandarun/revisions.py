@@ -1,21 +1,22 @@
+import base64
 import os
 import pickle
-
-from .util import ensure_directory, get_files
 
 
 class DatasetRevisions:
     def __init__(self, dataset):
         self._dataset = dataset
-        self._data_root = ensure_directory(os.path.join(dataset._storage.data_root, 'revisions'))
+        self._backend = dataset._storage.storage.backend
+        self._base_path = 'revisions'
 
     def list(self):
         return [n for n, _ in self._get_files()]
 
     def __getitem__(self, item):
-        if os.path.isfile(self._fp(item)):
-            with open(self._fp(item), 'rb') as f:
-                return pickle.load(f)
+        fp = self._fp(item)
+        if self._backend.exists(fp):
+            content = self._backend.fetch(fp)
+            return pickle.loads(base64.b64decode(content))
         raise FileNotFoundError(f'Revision `{item}` not found for dataset `{self._dataset}`')
 
     def __iter__(self):
@@ -26,11 +27,12 @@ class DatasetRevisions:
         return item in self.list()
 
     def save(self, name, item):
-        with open(self._fp(name), 'wb') as f:
-            pickle.dump(item, f)
+        content = base64.b64encode(pickle.dumps(item)).decode()
+        fp = self._fp(name)
+        self._backend.store(fp, content)
 
     def _fp(self, name):
-        return os.path.join(self._data_root, f'{name}.pkl')
+        return os.path.join(self._base_path, f'{name}.pkl')
 
     def _get_files(self):
-        return [f for f in get_files(self._data_root, lambda x: x.endswith('.pkl'))]
+        return [f for f in self._backend.get_children(self._base_path, lambda x: x.endswith('.pkl'))]

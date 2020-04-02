@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
     def test_filesystem_publish(self):
         ds = self.dataset
         fp = ds.publish()[0]
-        self.assertIn(self.config['public_root'], fp)
+        self.assertIn(self.config['data_root'], fp)
         self.assertTrue(os.path.isfile(fp))
         df = pd.read_csv(fp, index_col='id')
         self.assertTrue(df.equals(ds.df))
@@ -24,11 +24,11 @@ class Test(unittest.TestCase):
         # overwrite
         self.assertRaises(FileExistsError, ds.publish)
         fp = ds.publish(overwrite=True)[0]
-        self.assertIn(self.config['public_root'], fp)
+        self.assertIn(self.config['data_root'], fp)
 
         # with source
         ds.publish(overwrite=True, include_source=True)
-        fp = os.path.join(self.config['public_root'], ds.name, 'source.csv')
+        fp = os.path.join(self.config['data_root'], ds.name, 'source.csv')
         self.assertTrue(os.path.isfile(fp))
         with open(fp) as f:
             source_content = f.read()
@@ -43,14 +43,14 @@ class Test(unittest.TestCase):
         self.assertTrue(df.shape == _df.shape)
 
     def test_disabled_handler(self):
-        os.environ['FILESYSTEM_PUBLISH'] = '0'
+        os.environ['FILESYSTEM_PUBLISH_ENABLED'] = '0'
         os.environ['CONFIG'] = './example/config.yml'
         store = Datastore()
         self.assertFalse(banal.as_bool(store.config.publish['handlers']['filesystem']['enabled']))
         res = store.datasets[0].publish()
-        self.assertIn('not enabled', res[0])
+        self.assertListEqual([], res)
         # re-enable for further tests
-        os.environ['FILESYSTEM_PUBLISH'] = 'true'
+        os.environ['FILESYSTEM_PUBLISH_ENABLED'] = 'true'
 
     def test_publish_with_timestamp(self):
         config = self.store.config

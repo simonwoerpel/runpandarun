@@ -62,21 +62,6 @@ def time_to_json(value):
         return
 
 
-def get_value_from_file(fp, default=None, transform=lambda x: x):
-    if os.path.exists(fp):
-        with open(fp) as f:
-            value = f.read().strip()
-            if value:
-                return transform(value)
-    return default
-
-
-def ensure_directory(fp):
-    if not os.path.isdir(fp):
-        os.makedirs(fp)
-    return fp
-
-
 def get_files(directory, condition=lambda x: True):
     """
     return tuples of (filename, path) for files in given `directory`

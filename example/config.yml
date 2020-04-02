@@ -1,10 +1,18 @@
 storage:
-  data_root: datastore-testdata/example
+  filesystem:
+    enabled: !ENV ${FILESYSTEM_ENABLED}
+    data_root: datastore-testdata/example
+  gcloud:
+    enabled: !ENV ${GOOGLE_ENABLED}
+    bucket: runpandarun-testbucket
 publish:
   handlers:
     filesystem:
-      enabled: !ENV ${FILESYSTEM_PUBLISH}
-      public_root: datastore-testdata/public
+      enabled: !ENV ${FILESYSTEM_PUBLISH_ENABLED}
+      data_root: datastore-testdata/public
+    gcloud:
+      enabled: !ENV ${GOOGLE_PUBLISH_ENABLED}
+      bucket: runpandarun-testbucket-publish
 combine:
   - a_local_csv
   - a_local_json
