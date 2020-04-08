@@ -67,7 +67,7 @@ def get_files(directory, condition=lambda x: True):
     return tuples of (filename, path) for files in given `directory`
     that match `condition` (default: all) incl. subdirectories
     """
-    return [(f.split('.')[0], os.path.join(d, f)) for d, _, fnames in os.walk(directory)
+    return [(os.path.splitext(f)[0], os.path.join(d, f)) for d, _, fnames in os.walk(directory)
             for f in fnames if condition(os.path.join(d, f))]
 
 
