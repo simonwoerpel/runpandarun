@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='runpandarun',
-    version='0.1',
+    version='0.1.1',
     description='A simple toolkit for managing data from different sources.',
     long_description=readme(),
     classifiers=[
