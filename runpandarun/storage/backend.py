@@ -2,6 +2,8 @@ import os
 
 
 class Backend:
+    _is_cloud = False
+
     def __init__(self, config):
         self.config = config
         self.base_path = self.get_base_path()
@@ -24,7 +26,7 @@ class Backend:
         # check if given path exists and return boolean
         raise NotImplementedError
 
-    def store(self, path, content):
+    def store(self, path, content, publish=False):
         # store `content` in path and return absolute path to stored file or clouud blob location
         raise NotImplementedError
 

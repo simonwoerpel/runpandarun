@@ -85,6 +85,10 @@ class DatasetStorage(Storage):
             raise NotImplementedError(
                 f'Currently only `newest` or `oldest` version is possible for dataset {self.name}'
             )
+
+        # FIXME cloud storage path handling
+        if self.backend._is_cloud:
+            return self.backend.fetch(fp)
         return self.backend.fetch(self._fp(fp))
 
     def get_incremental_sources(self, versions):
@@ -122,7 +126,7 @@ class DatasetStorage(Storage):
 
     def should_update(self):
         """determine if remote content should be fetched / updated"""
-        contents = len(self.backend.get_children(self._fp('data')))
+        contents = len(list(self.backend.get_children(self._fp('data'))))
         if contents == 0:
             return True
         return self.last_update is None

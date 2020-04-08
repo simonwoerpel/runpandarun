@@ -4,12 +4,13 @@ storage:
     data_root: datastore-testdata/example
   gcloud:
     enabled: !ENV ${GOOGLE_ENABLED}
-    bucket: runpandarun-testbucket
+    bucket: runpandarun-testbucket-storage
 publish:
   handlers:
     filesystem:
       enabled: !ENV ${FILESYSTEM_PUBLISH_ENABLED}
       data_root: datastore-testdata/public
+      base_url: http://localhost:8000
     gcloud:
       enabled: !ENV ${GOOGLE_PUBLISH_ENABLED}
       bucket: runpandarun-testbucket-publish

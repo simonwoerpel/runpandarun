@@ -37,9 +37,9 @@ class Handler:
             if self.config.include_source:
                 source_fp = self._fp(f'source.{self.dataset.format}')
                 content = self.dataset._storage.get_source()
-                self.backend.store(source_fp, content)
+                self.backend.store(source_fp, content, publish=True)
             content = self.dump(**(self.config.pd_args or {}))
-            res = self.backend.store(fp, content)
+            res = self.backend.store(fp, content, publish=True)
             if self.config.public_url:
                 return urljoin(self.config.base_url, fp)
             return res

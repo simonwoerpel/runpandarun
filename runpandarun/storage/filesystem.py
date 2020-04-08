@@ -19,7 +19,7 @@ class FilesystemBackend(Backend):
         p = self.get_path(path)
         return any((os.path.isfile(p), os.path.isdir(p)))
 
-    def store(self, path, content):
+    def store(self, path, content, publish=False):
         path = self.get_path(path)
         ensure_directory(os.path.split(path)[0])
         with open(path, 'w') as f:
