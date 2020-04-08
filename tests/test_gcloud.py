@@ -33,12 +33,12 @@ class Test(unittest.TestCase):
         os.environ['GOOGLE_PUBLISH_ENABLED'] = '0'
         os.environ['GOOGLE_ENABLED'] = '0'
         # delete created google buckets
-        # for bucket in (self.publish_config['bucket'], self.storage_config['bucket']):
-        #     try:
-        #         bucket = self.client.get_bucket(bucket)
-        #         bucket.delete()
-        #     except NotFound:
-        #         pass
+        for bucket in (self.publish_config['bucket'], self.storage_config['bucket']):
+            try:
+                bucket = self.client.get_bucket(bucket)
+                bucket.delete(force=True)
+            except NotFound:
+                pass
 
     def test_1config(self):
         self.assertTrue(banal.as_bool(self.publish_config['enabled']))
