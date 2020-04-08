@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def readme():
@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='runpandarun',
-    version='0.1rc3',
+    version='0.1rc4',
     description='A simple toolkit for managing data from different sources.',
     long_description=readme(),
     classifiers=[
@@ -23,7 +23,7 @@ setup(
     author='Simon Wörpel',
     author_email='simon.woerpel@medienrevolte.de',
     license='MIT',
-    packages=['runpandarun'],
+    packages=find_packages(exclude=['runpandarun.tests']),
     entry_points={
         'console_scripts': [
             'runpandarun=runpandarun.cli:main'
