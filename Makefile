@@ -21,7 +21,7 @@ test:
 	pytest -s --cov=runpandarun
 	rm -rf ./datastore-testdata
 
-build:
+build: readme
 	python setup.py sdist bdist_wheel
 
 release: clean build
@@ -38,3 +38,6 @@ clean:
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
+readme:
+	pandoc README.md -o README.rst
+	sed -i 's/:panda_face://g' README.rst
