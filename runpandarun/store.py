@@ -4,7 +4,7 @@ from . import combine
 from .config import Config
 from .exceptions import ConfigError
 from .dataset import Dataset
-from .storage import Storage
+from .storage import get_storage
 from .util import cached_property
 
 
@@ -15,7 +15,8 @@ class Datastore:
     yaml config. See `./examples/`
 
         storage:
-          data_root: /tmp/datastore/
+          filesystem:
+            data_root: /tmp/datastore/
         my_dataset:
           csv_url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv    # noqa
           columns:
@@ -30,7 +31,7 @@ class Datastore:
             if config is None:
                 raise ConfigError('Please specify path to config yaml to `Datastore` or set via env var.')
         self.config = Config(config)
-        self._storage = Storage(config)
+        self._storage = get_storage(config)
         self._datasets = self.config.get('datasets', {})
         self._combine = self.config.get('combine', [])
         self.validate()
@@ -45,7 +46,7 @@ class Datastore:
         return item in self._datasets
 
     def __repr__(self):
-        return f'<Datastore: {self._storage.data_root}>'
+        return f'<Datastore: `{self._storage.backend.__class__.__name__}` {self._storage.backend}>'
 
     def __getitem__(self, attr):
         if attr in self:

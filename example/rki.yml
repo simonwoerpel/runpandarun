@@ -1,5 +1,6 @@
 storage:
-  data_root: datastore-testdata/example
+  filesystem:
+    data_root: datastore-testdata/example
 datasets:
   rki:
     json_local: ./example/rki.json

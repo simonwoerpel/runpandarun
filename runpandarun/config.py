@@ -46,7 +46,7 @@ def parse_config(data, tag='!ENV'):
             full_value = value
             for g in match:
                 full_value = full_value.replace(
-                    f'${{{g}}}', os.environ.get(g, g)
+                    f'${{{g}}}', os.environ.get(g, '')
                 )
             return full_value
         return value

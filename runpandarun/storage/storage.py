@@ -5,9 +5,9 @@ import os
 from datetime import datetime
 from dateutil import parser
 
-from .config import Config
-from .exceptions import FetchError
-from .util import get_value_from_file, cached_property, ensure_directory, get_files
+from ..config import Config
+from ..exceptions import FetchError
+from ..util import cached_property, make_key
 
 
 class Storage:
@@ -16,16 +16,19 @@ class Storage:
     optionally with archive for historical data if it's enabled for
     a dataset (default: yes)
 
-    it's an underlying helper class to handle the filesystem stuff.
+    it's an underlying helper class to handle the filesystem or cloud stuff.
     It will not be used by the user directly, they will use `datasets.Datastore`
     """
-    def __init__(self, config):
+    def __init__(self, config, backend_class):
         self.config = Config(config)
-        data_root = self.config.get('storage').get('data_root', './data/')
-        self.data_root = ensure_directory(os.path.abspath(data_root))
+        self.backend = backend_class(self.config)
+        self.base_path = ''
 
     def __repr__(self):
-        return f'<Storage: {self.data_root}>'
+        return f'<Storage: `{self.backend.__class__.__name__}` {self.backend}>'
+
+    def _fp(self, path=''):
+        return os.path.join(self.base_path, path)
 
     @property  # not cached
     def last_update(self):
@@ -35,17 +38,16 @@ class Storage:
     def last_complete_update(self):
         return self.get_ts('last_complete_update')
 
-    def set_ts(self, key, ts=None):
+    def set_ts(self, path, ts=None):
+        path = self._fp(path)
         ts = ts or datetime.utcnow()
         if not isinstance(ts, str):
             ts = ts.isoformat()
-        fp = os.path.join(self.data_root, key)
-        with open(fp, 'w') as f:
-            f.write(ts)
+        return self.backend.set_value(path, ts)
 
-    def get_ts(self, key):
-        fp = os.path.join(self.data_root, key)
-        return get_value_from_file(fp, transform=parser.parse)
+    def get_ts(self, path):
+        path = self._fp(path)
+        return self.backend.get_value(path, parser.parse)
 
 
 class DatasetStorage(Storage):
@@ -54,8 +56,9 @@ class DatasetStorage(Storage):
         self.name = name
         self.config = Config(config)
         self.storage = storage
-        self.data_root = ensure_directory(os.path.join(storage.data_root, name))
+        self.backend = storage.backend
         self.validate()
+        self.base_path = self.name
 
     def get_source(self, update=False, version='newest'):
         """
@@ -67,7 +70,7 @@ class DatasetStorage(Storage):
         if update or self.should_update():
             self.fetch(store=self.should_store())
 
-        versions = get_files(self.data_root, lambda x: 'last_update' not in x and 'revisions' not in x)
+        versions = self.backend.get_children(self._fp('data'))
         versions = sorted([v for _, v in versions])
 
         if self.config.incremental is True:
@@ -82,25 +85,28 @@ class DatasetStorage(Storage):
             raise NotImplementedError(
                 f'Currently only `newest` or `oldest` version is possible for dataset {self.name}'
             )
-        with open(os.path.join(self.data_root, fp)) as f:
-            content = f.read()
-        return content
+
+        # FIXME cloud storage path handling
+        if self.backend._is_cloud:
+            return self.backend.fetch(fp)
+        return self.backend.fetch(self._fp(fp))
 
     def get_incremental_sources(self, versions):
         for fp in versions:
-            with open(os.path.join(self.data_root, fp)) as f:
-                content = f.read()
-            yield content
+            yield self.backend.fetch(self._fp(fp))
 
     def fetch(self, store=True):
         """fetch a dataset source and store it on disk"""
         content = self.get_remote_content()
         if content:
-            if store:
-                ts = datetime.utcnow().isoformat()
-                fp = os.path.join(self.data_root, 'data.%s.%s' % (ts, self.format))
-                with open(fp, 'w') as f:
-                    f.write(content)
+            if store:  # still only store if newer file is different
+                key = make_key(content, hash=True)
+                last_key = self.backend.get_value(self._fp('last_update_key'))
+                if last_key != key:
+                    ts = datetime.utcnow().isoformat()
+                    fp = 'data/data.%s.%s' % (ts, self.format)
+                    self.backend.store(self._fp(fp), content)
+                    self.backend.set_value(self._fp('last_update_key'), key)
                 self.set_ts('last_update')
                 self.storage.set_ts('last_update')
             return
@@ -121,13 +127,13 @@ class DatasetStorage(Storage):
 
     def should_update(self):
         """determine if remote content should be fetched / updated"""
-        contents = os.listdir(self.data_root)
-        if not set(contents) - set(['last_update']):
+        contents = len(list(self.backend.get_children(self._fp('data'))))
+        if contents == 0:
             return True
         return self.last_update is None
 
     def should_store(self):
-        """determine if remote content should be stored in `storage.data_root`"""
+        """determine if remote content should be stored in `self.storage`"""
         if self.is_remote:
             return True
         if self.is_local:

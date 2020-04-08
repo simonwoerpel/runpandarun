@@ -12,7 +12,7 @@ class Test(unittest.TestCase):
         self.ds = store.datasets[0]
 
     def _fp(self, name):
-        return os.path.join(self.ds.revisions._data_root, f'{name}.pkl')
+        return os.path.join(self.ds.revisions._backend.get_base_path(), 'revisions', f'{name}.pkl')
 
     def test_revisions(self):
         ds = self.ds

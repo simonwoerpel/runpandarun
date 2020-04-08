@@ -2,13 +2,13 @@ from setuptools import setup
 
 
 def readme():
-    with open('README.md') as f:
+    with open('README.rst') as f:
         return f.read().strip()
 
 
 setup(
     name='runpandarun',
-    version='0.1',
+    version='0.1RC1',
     description='A simple toolkit for managing data from different sources.',
     long_description=readme(),
     classifiers=[
