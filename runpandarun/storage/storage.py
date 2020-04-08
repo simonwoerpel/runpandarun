@@ -93,7 +93,11 @@ class DatasetStorage(Storage):
 
     def get_incremental_sources(self, versions):
         for fp in versions:
-            yield self.backend.fetch(self._fp(fp))
+            # FIXME cloud storage path handling
+            if self.backend._is_cloud:
+                yield self.backend.fetch(fp)
+            else:
+                yield self.backend.fetch(self._fp(fp))
 
     def fetch(self, store=True):
         """fetch a dataset source and store it on disk"""
