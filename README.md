@@ -105,7 +105,7 @@ Requires python3. Virtualenv use recommended.
 
 Additional dependencies (`pandas` et. al.) will be installed automatically:
 
-    pip install git+https://github.com/simonwoerpel/runpandarun.git#egg=runpandarun
+    pip install runpandarun
 
 After this, you should be able to execute in your terminal:
 
