@@ -163,23 +163,30 @@ class Test(unittest.TestCase):
             data_root: datastore-testdata/test_incremental
         datasets:
           my_dataset:
-              csv_url: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv  # noqa
-              columns:
-                - id: identifier
-                - value
-                - date
+              csv_local: ./example/testdata.csv
+              dt_index: date
         """
         store = Datastore(config)
         ds = store.datasets[0]
         self.assertIsInstance(ds.config.ops, list)  # base ops
         config = store.config.to_dict()
         config['datasets']['my_dataset']['ops'] = [
-            {'sort_values': {'ascending': False, 'by': 'value'}},
-            {'fillna': {'value': ''}}
+            {'sort_values': {'ascending': False, 'by': 'state'}},
+            {'fillna': {'value': ''}},
+            {'applymap': {'func': 'lambda x: x.lower() if isinstance(x, str) else x'}}
         ]
         store = Datastore(config)
         ds = store.datasets[0]
-        ds.get_df()
+        df = ds.get_df()
+        self.assertTrue(all(df['state'].map(lambda x: x.islower())))
+
+        # unsafe eval raise
+        config['datasets']['my_dataset']['ops'] = [
+            {'applymap': {'func': "__import__('os').system('rm -rf /tmp/still-dont-be-too-risky-in-this-test')"}}
+        ]
+        store = Datastore(config)
+        ds = store.datasets[0]
+        self.assertRaises(NameError, ds.get_df)
 
     def test_json_dtype(self):
         store = self.store

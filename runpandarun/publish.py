@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from urllib.parse import urljoin
 
+from .ops import apply_ops
 from .storage import get_backend
 
 
@@ -16,8 +17,9 @@ class Handler:
         self.format = config.get('format', dataset.format)
         self.overwrite = config.get('overwrite')
         self.with_timestamp = config.get('with_timestamp')
-        self.dump = getattr(df, f'to_{self.format}')
         self.base_path = self.get_base_path()
+        df = apply_ops(df, config.get('clean', {}))
+        self.dump = getattr(df, f'to_{self.format}')
 
     def get_base_path(self):
         return self.backend.get_path(self.dataset.name)

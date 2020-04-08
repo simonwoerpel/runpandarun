@@ -1,6 +1,8 @@
 import os
 import sys
 import hashlib
+import pandas as pd
+import numpy as np
 
 from multiprocessing import Pool, cpu_count
 from slugify import slugify as _slugify
@@ -158,3 +160,20 @@ def make_key(*criteria, hash=None, clean=False):
         return key
     m.update(key.encode('utf-8'))
     return m.hexdigest()
+
+
+def safe_eval(value):
+    return eval(value, {'__builtins__': {
+        'pd': pd,
+        'np': np,
+        'str': str,
+        'int': int,
+        'float': float,
+        'dict': dict,
+        'list': list,
+        'tuple': tuple,
+        'None': None,
+        'hasattr': hasattr,
+        'getattr': getattr,
+        'isinstance': isinstance
+    }})
