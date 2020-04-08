@@ -106,6 +106,7 @@ class DatasetStorage(Storage):
                     ts = datetime.utcnow().isoformat()
                     fp = 'data/data.%s.%s' % (ts, self.format)
                     self.backend.store(self._fp(fp), content)
+                    self.backend.set_value(self._fp('last_update_key'), key)
                 self.set_ts('last_update')
                 self.storage.set_ts('last_update')
             return
