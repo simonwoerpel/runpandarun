@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def readme():
@@ -23,7 +23,7 @@ setup(
     author='Simon Wörpel',
     author_email='simon.woerpel@medienrevolte.de',
     license='MIT',
-    packages=['runpandarun'],
+    packages=find_packages(exclude=['runpandarun.tests']),
     entry_points={
         'console_scripts': [
             'runpandarun=runpandarun.cli:main'
