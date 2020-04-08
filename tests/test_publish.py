@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
         self.assertIn(self.config['data_root'], fp)
         self.assertTrue(os.path.isfile(fp))
         df = pd.read_csv(fp, index_col='id')
-        self.assertTrue(df.equals(ds.df))
+        self.assertTrue(df.equals(ds.get_df()))
 
         # overwrite
         self.assertRaises(FileExistsError, ds.publish)
@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
         self.assertEqual(ds._storage.get_source(), source_content)
 
         # different name and wrangled df
-        df = ds.df.T
+        df = ds.get_df().T
         fp = ds.publish(df, name='transformed')[0]
         self.assertTrue(os.path.isfile(fp))
         self.assertIn('transformed', fp)

@@ -10,7 +10,6 @@ class Handler:
     def __init__(self, dataset, df, config, backend):
         self.enabled = banal.as_bool(config.enabled)
         self.dataset = dataset
-        self.df = df
         self.config = config
         self.backend = backend
         self.name = config.get('name', dataset.name)

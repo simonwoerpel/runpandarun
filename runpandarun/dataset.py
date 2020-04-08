@@ -50,8 +50,6 @@ class Dataset:
         self.config = Config({**DEFAULT_CONFIG, **config})
         self.store = store
         self._storage = DatasetStorage(name, config, store._storage)
-        self._base_df = None
-        self._df = None
         self.revisions = DatasetRevisions(self)
 
         # provide handy pd shortcuts
@@ -72,7 +70,7 @@ class Dataset:
         self.revisions.save(name, item)
 
     @cached_property
-    def df(self):
+    def _df(self):
         return self.get_df()
 
     @cached_property
@@ -107,7 +105,7 @@ class Dataset:
 
     def publish(self, df=None, **kwargs):
         if df is None:
-            df = self.df
+            df = self._df
         config = self.config.update({'publish': self.store.config.publish or {}})  # FIXME hrmpf
         return publish.publish(self, df, config, **kwargs)
 
@@ -130,12 +128,12 @@ class Dataset:
         if method not in RESAMPLE_METHODS.keys():
             raise ConfigError(f'Resampling method `{method}` not valid.')  # noqa
         if method == 'count':  # FIXME implementation?
-            df = self.df.copy()
+            df = self._df.copy()
             df['count'] = 1
             return df.resample(interval)[['count']].count()
-        return self.df[self.numeric_cols()].resample(interval).apply(RESAMPLE_METHODS[method])
+        return self._df[self.numeric_cols()].resample(interval).apply(RESAMPLE_METHODS[method])
 
     def numeric_cols(self):
-        for col in self.df.columns:
-            if pd.api.types.is_numeric_dtype(self.df[col]):
+        for col in self._df.columns:
+            if pd.api.types.is_numeric_dtype(self._df[col]):
                 yield col

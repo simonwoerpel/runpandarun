@@ -23,6 +23,6 @@ def concat_long(dfs):
 
 
 def concat_wide(datasets):
-    dfs = (ds.df.rename(columns={c: f'{ds.name}.{c}' for c in ds.df.columns}) for ds in datasets)
+    dfs = (ds._df.rename(columns={c: f'{ds.name}.{c}' for c in ds._df.columns}) for ds in datasets)
     df = pd.concat(dfs, axis=1)
     return df
