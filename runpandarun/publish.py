@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from urllib.parse import urljoin
 
+from .exceptions import ConfigError
 from .ops import apply_ops
 from .storage import get_backend
 
@@ -53,6 +54,8 @@ class Handler:
 
 
 def _publish(dataset, df, config, **kwargs):
+    if config.publish is None:
+        raise ConfigError('Add a publish handler config to be able to publish datasets.')
     for handler, handler_config in config.publish['handlers'].items():
         if banal.as_bool(handler_config.get('enabled', True)):
             backend = get_backend(handler, handler_config)
