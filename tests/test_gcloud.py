@@ -4,6 +4,7 @@ test google cloud storage and publish
 
 import banal
 import os
+import requests
 import unittest
 import pandas as pd
 
@@ -78,3 +79,13 @@ class Test(unittest.TestCase):
 
         res = ds.publish(overwrite=True)
         self.assertEqual(url, res[0])
+
+    def test_gcloud_cache(self):
+        config = self.store.config.to_dict().copy()
+        config['publish']['handlers']['gcloud']['cache_control'] = 'no-cache'
+        store = Datastore(self.store.config.update(config))
+        dataset = store.datasets[0]
+        dataset.publish()
+        url = 'https://runpandarun-testbucket-publish.storage.googleapis.com/my_dataset/my_dataset.csv'
+        res = requests.get(url)
+        self.assertEqual(res.headers['cache-control'], 'no-cache')

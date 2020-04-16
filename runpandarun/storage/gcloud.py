@@ -52,6 +52,9 @@ class GoogleCloudBackend(Backend):
         blob = self._get_blob(path)
         blob.upload_from_string(content, content_type=content_type)
         if publish:
+            if self.config.cache_control:
+                blob.cache_control = self.config.cache_control
+                blob.patch()
             blob.make_public()
             return blob.public_url
         return self.get_path(path)
