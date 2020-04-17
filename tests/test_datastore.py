@@ -192,3 +192,8 @@ class Test(unittest.TestCase):
         store = self.store
         df = store.a_local_json.get_df()
         self.assertTrue(df['value'].dtype.name == 'object')
+
+    def test_columns_map(self):
+        ds = self.store.a_local_json
+        df = ds.get_df()
+        self.assertTrue(all(df['state'].map(lambda x: x.isupper())))

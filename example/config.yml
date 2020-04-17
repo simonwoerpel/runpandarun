@@ -45,6 +45,7 @@ datasets:
         integer: str
     columns:
       - value: integer
-      - state
+      - state:
+          map: 'lambda x: x.upper()'
       - date
     dt_index: date
