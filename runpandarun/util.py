@@ -1,6 +1,9 @@
+import banal
 import os
 import sys
 import hashlib
+import pandas as pd
+import numpy as np
 
 from multiprocessing import Pool, cpu_count
 from slugify import slugify as _slugify
@@ -158,3 +161,31 @@ def make_key(*criteria, hash=None, clean=False):
         return key
     m.update(key.encode('utf-8'))
     return m.hexdigest()
+
+
+def safe_eval(value):
+    return eval(value, {'__builtins__': {
+        'pd': pd,
+        'np': np,
+        'str': str,
+        'int': int,
+        'float': float,
+        'dict': dict,
+        'list': list,
+        'tuple': tuple,
+        'None': None,
+        'True': True,
+        'False': False,
+        'len': len,
+        'hasattr': hasattr,
+        'getattr': getattr,
+        'isinstance': isinstance
+    }})
+
+
+def ensure_singlekey_dict(data):
+    # validate that data is a dict with only 1 key and return key, data[key]
+    if banal.is_mapping(data):
+        if len(data) == 1:
+            return list(data.items())[0]
+    return None, None

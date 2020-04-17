@@ -2,6 +2,7 @@ import banal
 from pandas import DataFrame
 
 from .exceptions import ConfigError
+from .util import safe_eval
 
 
 def apply_ops(df, ops):
@@ -17,7 +18,7 @@ def apply_ops(df, ops):
             op_args = list(op.values())
             if len(op_args) > 1:
                 raise ConfigError(f'Operation arguments not valid: {op_args} - should be only 1 mapping item.')
-            op_args = op_args[0]
+            op_args = {k: safe_eval(v) if k == 'func' else v for k, v in op_args[0].items()}
         func = getattr(DataFrame, op_name, None)
         if func is None or not callable(func):
             raise ConfigError(f'{op} is not a valid opration for `pd.DataFrame`')

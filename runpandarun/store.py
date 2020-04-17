@@ -68,7 +68,7 @@ class Datastore:
           - merge on index
         """
         datasets = [ds for ds in self if ds.name in self._combine]
-        dfs = [ds.df for ds in datasets]
+        dfs = [ds._df for ds in datasets]
         # concat long
         if combine.test_index_name_equal(dfs) and combine.test_columns_equal(dfs):
             return combine.concat_long(dfs)

@@ -60,7 +60,7 @@ store this as a file, and set the env var ``CONFIG`` to the path:
 
    from runpandarun.datasets import my_dataset, another_dataset
 
-   df = my_dataset.df
+   df = my_dataset.get_df()
    df['name'].plot.hist()
 
    another_dataset.daily.mean().plot()  # some handy shorthands for pandas
@@ -81,7 +81,7 @@ Handle data persistence and state of datasets:
    store.update()
 
    # save a revision
-   df = my_dataset.df
+   df = my_dataset.get_df()
    df = wrangle(df)
    my_dataset.save(df, 'wrangled')
 
@@ -89,7 +89,7 @@ Handle data persistence and state of datasets:
    df = my_dataset['wrangled']
 
    # publish
-   df = my_dataset.df
+   df = my_dataset.get_df()
    clean(df)
    my_dataset.publish(df, name='cleaned', overwrite=True)
 
@@ -377,7 +377,7 @@ analysis scripts and focus on the analysis itself…
    ds = store.my_dataset
 
    # all your datasets have their computed (according to your config) `pandas.DataFrame` as attribute:
-   df = store.my_dataset.df
+   df = store.my_dataset.get_df()
 
    # get combined df (if specified in the config)
    df = store.combined
@@ -417,9 +417,9 @@ After the workflow is done, you can publish some (or all) results.
 .. code:: python
 
    dataset = store.my_dataset
-   df1 = do_something_with(dataset.df)
+   df1 = do_something_with(dataset.get_df())
    dataset.publish(df1, overwrite=True, include_source=True)
-   df2 = do_something_else_with(dataset.df)
+   df2 = do_something_else_with(dataset.get_df())
    dataset.publish(df2, name='filtered_for_europe', format='json')
 
 For behaviour reasons the ``overwrite``-flag must be set explicitly
@@ -481,7 +481,7 @@ workflow is for, right?
 .. code:: python
 
    ds = store.my_dataset
-   df = ds.df
+   df = ds.get_df()
    ds.revisions.save('tansformed', df.T)
 
 **load a revision**

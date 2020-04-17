@@ -15,10 +15,10 @@ class Test(unittest.TestCase):
         ds = self.dataset
         data = self.data
         self.assertDictEqual(data, json.loads(ds._storage.get_source()))
-        self.assertEqual(len(data['features']), len(ds.df))
+        self.assertEqual(len(data['features']), len(ds.get_df()))
 
     def test_remote_json(self):
         # TODO this test will fail sooner or later...
         store = Datastore('./example/rki_remote.yml')
         ds = store.rki
-        self.assertEqual(len(self.data['features']), len(ds.df))
+        self.assertEqual(len(self.data['features']), len(ds.get_df()))

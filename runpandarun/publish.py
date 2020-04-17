@@ -3,6 +3,8 @@ import os
 from datetime import datetime
 from urllib.parse import urljoin
 
+from .exceptions import ConfigError
+from .ops import apply_ops
 from .storage import get_backend
 
 
@@ -10,15 +12,15 @@ class Handler:
     def __init__(self, dataset, df, config, backend):
         self.enabled = banal.as_bool(config.enabled)
         self.dataset = dataset
-        self.df = df
         self.config = config
         self.backend = backend
         self.name = config.get('name', dataset.name)
         self.format = config.get('format', dataset.format)
         self.overwrite = config.get('overwrite')
         self.with_timestamp = config.get('with_timestamp')
-        self.dump = getattr(df, f'to_{self.format}')
         self.base_path = self.get_base_path()
+        df = apply_ops(df, config.get('clean', {}))
+        self.dump = getattr(df, f'to_{self.format}')
 
     def get_base_path(self):
         return self.backend.get_path(self.dataset.name)
@@ -52,6 +54,8 @@ class Handler:
 
 
 def _publish(dataset, df, config, **kwargs):
+    if config.publish is None:
+        raise ConfigError('Add a publish handler config to be able to publish datasets.')
     for handler, handler_config in config.publish['handlers'].items():
         if banal.as_bool(handler_config.get('enabled', True)):
             backend = get_backend(handler, handler_config)

@@ -4,6 +4,7 @@ test google cloud storage and publish
 
 import banal
 import os
+import requests
 import unittest
 import pandas as pd
 
@@ -33,12 +34,12 @@ class Test(unittest.TestCase):
         os.environ['GOOGLE_PUBLISH_ENABLED'] = '0'
         os.environ['GOOGLE_ENABLED'] = '0'
         # delete created google buckets
-        # for bucket in (self.publish_config['bucket'], self.storage_config['bucket']):
-        #     try:
-        #         bucket = self.client.get_bucket(bucket)
-        #         bucket.delete()
-        #     except NotFound:
-        #         pass
+        for bucket in (self.publish_config['bucket'], self.storage_config['bucket']):
+            try:
+                bucket = self.client.get_bucket(bucket)
+                bucket.delete(force=True)
+            except NotFound:
+                pass
 
     def test_1config(self):
         self.assertTrue(banal.as_bool(self.publish_config['enabled']))
@@ -78,3 +79,13 @@ class Test(unittest.TestCase):
 
         res = ds.publish(overwrite=True)
         self.assertEqual(url, res[0])
+
+    def test_gcloud_cache(self):
+        config = self.store.config.to_dict().copy()
+        config['publish']['handlers']['gcloud']['cache_control'] = 'no-cache'
+        store = Datastore(self.store.config.update(config))
+        dataset = store.datasets[0]
+        dataset.publish()
+        url = 'https://runpandarun-testbucket-publish.storage.googleapis.com/my_dataset/my_dataset.csv'
+        res = requests.get(url)
+        self.assertEqual(res.headers['cache-control'], 'no-cache')

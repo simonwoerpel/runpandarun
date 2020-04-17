@@ -43,15 +43,18 @@ class GoogleCloudBackend(Backend):
 
     def store(self, path, content, publish=False):
         ext = os.path.splitext(path)[1]
-        if ext == 'csv':
+        if ext == '.csv':
             content_type = 'text/csv'
-        elif ext == 'json':
+        elif ext == '.json':
             content_type = 'application/json'
         else:
             content_type = 'text/plain'
         blob = self._get_blob(path)
-        blob.upload_from_string(content, content_type)
+        blob.upload_from_string(content, content_type=content_type)
         if publish:
+            if self.config.cache_control:
+                blob.cache_control = self.config.cache_control
+                blob.patch()
             blob.make_public()
             return blob.public_url
         return self.get_path(path)
