@@ -10,7 +10,7 @@ def _load_csv(source, config):
 
 
 def load_csv(source, config):
-    if config.incremental:
+    if config.incremental or config.paginate:
         return pd.concat(_load_csv(s, config.read or {}) for s in source)
     return _load_csv(source, config.read or {})
 
@@ -25,6 +25,6 @@ def _load_json(source, config):
 
 
 def load_json(source, config):
-    if config.incremental:
+    if config.incremental or config.paginate:
         return pd.concat(_load_json(s, config) for s in source)
     return _load_json(source, config)

@@ -7,6 +7,7 @@ from dateutil import parser
 
 from ..config import Config
 from ..exceptions import FetchError
+from ..fetch import paginate
 from ..util import cached_property, make_key
 
 
@@ -73,7 +74,7 @@ class DatasetStorage(Storage):
         versions = self.backend.get_children(self._fp('data'))
         versions = sorted([v for _, v in versions])
 
-        if self.config.incremental is True:
+        if self.config.incremental or self.config.paginate:
             # concat all the versions
             return self.get_incremental_sources(versions)
 
@@ -103,21 +104,16 @@ class DatasetStorage(Storage):
         """fetch a dataset source and store it on disk"""
         content = self.get_remote_content()
         if content:
-            if store:  # still only store if newer file is different
-                key = make_key(content, hash=True)
-                last_key = self.backend.get_value(self._fp('last_update_key'))
-                if last_key != key:
-                    ts = datetime.utcnow().isoformat()
-                    fp = 'data/data.%s.%s' % (ts, self.format)
-                    self.backend.store(self._fp(fp), content)
-                    self.backend.set_value(self._fp('last_update_key'), key)
-                self.set_ts('last_update')
-                self.storage.set_ts('last_update')
-            return
+            if store:
+                if self.config.paginate:
+                    return self.store_paginated(content)
+                return self.store(content)
         raise FetchError(f'Could not fetch source data for dataset `{self.name}`.')
 
     def get_remote_content(self):
         if self.is_remote:
+            if self.config.paginate:
+                return paginate(self.get_request, self.config.paginate)
             res = self.get_request()
             if res.ok:
                 return res.text
@@ -143,11 +139,33 @@ class DatasetStorage(Storage):
         if self.is_local:
             return banal.as_bool(self.config.copy)
 
-    def get_request(self):
+    def get_request(self, **params):
         url = self.url
-        params = self.config.get('request').get('params')
+        params = {**self.config.get('request').get('params', {}), **params}
         headers = self.config.get('request').get('headers')
         return requests.get(url, params=params, headers=headers)
+
+    def store(self, content, page=None):
+        # still only store if newer file is different
+        key_name = 'last_update_key'
+        fp = 'data/data.%s.%s'
+        if page is not None:
+            key_name += f'--{page}'
+            fp = f'data/data--{page}.%s.%s'
+        last_key = self.backend.get_value(self._fp(key_name))
+
+        key = make_key(content, hash=True)
+        if last_key != key:
+            ts = datetime.utcnow().isoformat()
+            fp = fp % (ts, self.format)
+            self.backend.store(self._fp(fp), content)
+            self.backend.set_value(self._fp(key_name), key)
+            self.set_ts('last_update')
+            self.storage.set_ts('last_update')
+
+    def store_paginated(self, results):
+        for page, res in enumerate(results):
+            self.store(res.text, page)
 
     @cached_property
     def is_csv(self):
