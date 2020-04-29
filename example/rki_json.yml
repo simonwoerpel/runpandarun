@@ -8,9 +8,11 @@ datasets:
     json_normalize:
       record_path: features
     paginate:
-      offset:
-        param: resultOffset
-        get_offset_value: 'lambda res: len(res.json()["features"])'
+      resample_by: '%Y-%m-%d'
+      method:
+        offset:
+          param: resultOffset
+          get_offset_value: 'lambda res: len(res.json()["features"])'
     columns:
       - date: attributes.Meldedatum
       - last_updated: attributes.Datenstand
@@ -25,6 +27,5 @@ datasets:
       - state: attributes.Bundesland
       - district_id: attributes.IdLandkreis
       - district: attributes.Landkreis
-    incremental: true
     dt_index:
       column: date
