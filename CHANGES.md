@@ -1,5 +1,9 @@
 # changelog
 
+## 0.1.4
+
+- Add `url_replace` feature for dynamically url rewriting
+
 ## 0.1.3
 
 - Add option to resample paginated sources by download date format
