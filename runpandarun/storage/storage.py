@@ -7,7 +7,7 @@ from dateutil import parser
 
 from ..config import Config
 from ..exceptions import FetchError
-from ..fetch import paginate
+from ..paginate import fetch_paginated, get_resampled_versions
 from ..util import cached_property, make_key
 
 
@@ -74,6 +74,10 @@ class DatasetStorage(Storage):
         versions = self.backend.get_children(self._fp('data'))
         versions = sorted([v for _, v in versions])
 
+        if self.config.paginate:
+            # concat all the versions but hopefully aggregated by a given date format
+            versions = get_resampled_versions(versions, self.config.paginate, self.config.incremental)
+
         if self.config.incremental or self.config.paginate:
             # concat all the versions
             return self.get_incremental_sources(versions)
@@ -113,7 +117,7 @@ class DatasetStorage(Storage):
     def get_remote_content(self):
         if self.is_remote:
             if self.config.paginate:
-                return paginate(self.get_request, self.config.paginate)
+                return fetch_paginated(self.get_request, self.config.paginate)
             res = self.get_request()
             if res.ok:
                 return res.text

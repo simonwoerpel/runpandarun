@@ -1,5 +1,11 @@
 # changelog
 
+## 0.1.3
+
+- Add option to resample paginated sources by download date format
+- Small bugfixes
+
+
 ## 0.1.2
 
 - Add pagination by offset logic
