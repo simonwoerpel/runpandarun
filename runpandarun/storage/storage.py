@@ -8,7 +8,7 @@ from dateutil import parser
 from ..config import Config
 from ..exceptions import FetchError
 from ..paginate import fetch_paginated, get_resampled_versions
-from ..util import cached_property, make_key
+from ..util import cached_property, make_key, safe_eval
 
 
 class Storage:
@@ -147,6 +147,9 @@ class DatasetStorage(Storage):
         url = self.url
         params = {**self.config.get('request').get('params', {}), **params}
         headers = self.config.get('request').get('headers')
+        if 'url_replace' in self.config.get('request', {}):
+            replace = {arg: safe_eval(func) for arg, func in self.config.request['url_replace'].items()}
+            url = url.format(**replace)
         return requests.get(url, params=params, headers=headers)
 
     def store(self, content, page=None):

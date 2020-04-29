@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
         store = self.store
         self.assertIsInstance(store.datasets, list)
         self.assertIsInstance([d for d in store], list)
-        self.assertEqual(3, len(store.datasets))
+        self.assertEqual(4, len(store.datasets))
         dataset = store.datasets[0]
         self.assertEqual(getattr(store, 'my_dataset'), dataset)
         dataset = store.datasets[1]

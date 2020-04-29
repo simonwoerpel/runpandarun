@@ -5,6 +5,7 @@ import hashlib
 import pandas as pd
 import numpy as np
 
+from datetime import datetime, timedelta
 from multiprocessing import Pool, cpu_count
 from slugify import slugify as _slugify
 
@@ -179,7 +180,9 @@ def safe_eval(value):
         'len': len,
         'hasattr': hasattr,
         'getattr': getattr,
-        'isinstance': isinstance
+        'isinstance': isinstance,
+        'datetime': datetime,
+        'timedelta': timedelta
     }})
 
 
