@@ -14,7 +14,7 @@ def apply_index(df, config):
             index_conf = {k: v for k, v in dt_index.items() if k != 'column'}
             df.index = pd.DatetimeIndex(pd.to_datetime(df[col], **index_conf))
             del df[col]
-            return df
+            return df.sort_index()
         df.index = pd.DatetimeIndex(pd.to_datetime(df[dt_index]))
         del df[dt_index]
         return df.sort_index()
