@@ -133,7 +133,7 @@ More information about handlers and their options: [Pandas IO tools](https://pan
 
 ```yaml
 read:
-uri: s3://my-bucket/data.xls    # input uri, anything that smart_open can read
+  uri: s3://my-bucket/data.xls  # input uri, anything that smart_open can read
   handler: read_excel           # default: guess by file extension, fallback: read_csv
   options:                      # options for the handler
     skiprows: 2
