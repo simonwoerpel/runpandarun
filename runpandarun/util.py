@@ -49,6 +49,6 @@ def expandvars(data: Any) -> dict[str, Any]:
 
 
 def absolute_path(path: PathLike, base: PathLike) -> PathLike | str:
-    if parse_uri(str(path)).scheme == "file":
-        return os.path.normpath((Path(base).parent / Path(path)).absolute())
-    return path
+    if path == "-" or parse_uri(str(path)).scheme != "file":
+        return path
+    return os.path.normpath((Path(base).parent / Path(path)).absolute())
