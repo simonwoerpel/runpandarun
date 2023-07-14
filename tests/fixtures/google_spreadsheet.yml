@@ -1,0 +1,7 @@
+# csv from a google spreadsheet
+in_uri: https://docs.google.com/spreadsheets/d/e/2PACX-1vRhzhiVJr0XPcMANnb9_F7bcE6h-C5826MGJs034AocLpyo4uy0y97LIG2ns8F1heCrSTsyEkL1XwDK/pub?output=csv
+columns:
+  - id: identifier
+  - value
+  - date
+

@@ -1,0 +1,25 @@
+in_uri: https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json
+json_normalize:
+  record_path: features
+paginate:
+  resample_by: '%Y-%m-%d'
+  method:
+    offset:
+      param: resultOffset
+      get_offset_value: 'lambda res: len(res.json()["features"])'
+columns:
+  - date: attributes.Meldedatum
+  - last_updated: attributes.Datenstand
+  - report_id: attributes.ObjectId
+  - gender: attributes.Geschlecht
+  - age: attributes.Altersgruppe
+  - value: attributes.AnzahlFall
+  - death_value: attributes.AnzahlTodesfall
+  - new_case: attributes.NeuerFall
+  - new_death_case: attributes.NeuerTodesfall
+  - state_id: attributes.IdBundesland
+  - state: attributes.Bundesland
+  - district_id: attributes.IdLandkreis
+  - district: attributes.Landkreis
+dt_index:
+  column: date

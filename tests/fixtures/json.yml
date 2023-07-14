@@ -1,0 +1,12 @@
+# json
+in_uri: ./example/testdata.json
+read:
+  dtype:
+    integer: str
+columns:
+  - value: integer
+  - state:
+      map: 'lambda x: x.upper()'
+  - date
+dt_index: date
+

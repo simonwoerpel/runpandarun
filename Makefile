@@ -1,31 +1,20 @@
-FILESYSTEM_ENABLED ?= 1
-export FILESYSTEM_ENABLED
-
-FILESYSTEM_PUBLISH_ENABLED ?= 1
-export FILESYSTEM_PUBLISH_ENABLED
-
-GOOGLE_ENABLED ?= 0
-export GOOGLE_ENABLED
-
-GOOGLE_PUBLISH_ENABLED ?= 0
-export GOOGLE_PUBLISH_ENABLED
-
 all: clean install test
 
-install:
-	pip install -e .
-	pip install twine coverage nose moto boto3 pytest pytest-cov
+lint:
+	poetry run flake8 investigraph --count --select=E9,F63,F7,F82 --show-source --statistics
+	poetry run flake8 investigraph --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+pre-commit:
+	poetry run pre-commit install
+	poetry run pre-commit run -a
 
 test:
-	rm -rf ./datastore-testdata
-	pytest -s --cov=runpandarun
-	rm -rf ./datastore-testdata
+	rm -rf .test
+	poetry run pytest tests -v --capture=sys --cov=investigraph --cov-report term-missing
+	rm -rf .test
 
-build: readme
-	python setup.py sdist bdist_wheel
-
-release: clean build
-	twine upload dist/*
+typecheck:
+	poetry run mypy --strict investigraph
 
 clean:
 	rm -fr build/
@@ -37,7 +26,3 @@ clean:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
-
-readme:
-	pandoc README.md -o README.rst
-	sed -i 's/:panda_face://g' README.rst
