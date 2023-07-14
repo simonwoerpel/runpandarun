@@ -1,6 +1,4 @@
-# google credentials
-credentials.json
-
+tests/fixtures/testdata_transformed.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
