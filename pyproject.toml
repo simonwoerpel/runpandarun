@@ -18,7 +18,7 @@ classifiers = [
 packages = [{include = "runpandarun"}]
 
 [tool.poetry.scripts]
-investigraph = "runpandarun.cli:cli"
+runpandarun = "runpandarun.cli:cli"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/investigativedata/runpandarun/issues"
@@ -27,12 +27,12 @@ investigraph = "runpandarun.cli:cli"
 python = "^3.10"
 pandas = "2.0.3"
 requests = "2.31.0"
-smart-open = {version = "6.3.0", extras = ["all"]}
+smart-open = {extras = ["all"], version = "^6.3.0"}
 typer = "0.9.0"
+pydantic = "^2.0.3"
+banal = "^1.0.6"
 
 [tool.poetry.group.dev.dependencies]
-pytest-env = "0.8.2"
-moto = "4.1.12"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 black = "^23.3.0"
@@ -40,6 +40,7 @@ isort = "^5.12.0"
 mypy = "^1.3.0"
 pre-commit = "^3.3.3"
 flake8 = "^6.0.0"
+ipdb = "^0.13.13"
 pytest-xdist = "^3.3.1"
 
 [build-system]

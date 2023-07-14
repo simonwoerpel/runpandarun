@@ -1,5 +1,5 @@
 # pandas applymap
-in_uri: ./example/testdata.csv
+in_uri: ./testdata.csv
 copy: true
 read:
   skipfooter: 1
@@ -11,4 +11,3 @@ dt_index: date
 ops:
   - applymap:
       func: 'lambda x: x.lower() if isinstance(x, str) else x'
-

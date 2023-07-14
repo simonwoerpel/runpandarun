@@ -1,0 +1,17 @@
+in_uri: ./testdata.csv
+out_uri: ./testdata_transformed.csv
+handler:
+  name: read_csv
+  kwargs:
+    skipfooter: 1
+  request:
+    header:
+      "User-Agent": "runpandarun"
+columns:
+  - value: amount
+  - state
+  - date
+dt_index: date
+ops:
+  - sort_values:
+      by: state

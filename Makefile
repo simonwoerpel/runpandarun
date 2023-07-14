@@ -9,9 +9,7 @@ pre-commit:
 	poetry run pre-commit run -a
 
 test:
-	rm -rf .test
-	poetry run pytest tests -v --capture=sys --cov=investigraph --cov-report term-missing
-	rm -rf .test
+	poetry run pytest tests -v --capture=sys --cov=runpandarun --cov-report term-missing
 
 typecheck:
 	poetry run mypy --strict investigraph

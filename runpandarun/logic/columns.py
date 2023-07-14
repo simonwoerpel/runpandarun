@@ -1,23 +1,27 @@
+from typing import TypeAlias
+
 import banal
 
-from .exceptions import ConfigError
-from .util import safe_eval
+from ..exceptions import SpecError
+from ..util import safe_eval
+
+Column: TypeAlias = str | dict[str, str]
 
 
-def wrangle_columns(df, config):
+def apply(df, columns: list[Column]):
     use_columns = []
     rename_columns = {}
     map_funcs = {}
-    for column in config.columns:
+    for column in columns:
         if isinstance(column, str):
             use_columns.append(column)
         elif banal.is_mapping(column):
             if len(column) > 1:
-                raise ConfigError(f'Column config `{column}` has errors.')
+                raise SpecError(f"Column config `{column}` has errors.")
             target, source = list(column.items())[0]
             if banal.is_mapping(source):
-                source_column = source.get('column', target)
-                map_func = source.get('map')
+                source_column = source.get("column", target)
+                map_func = source.get("map")
                 if map_func:
                     map_funcs[target] = safe_eval(map_func)
             else:
@@ -25,7 +29,7 @@ def wrangle_columns(df, config):
             use_columns.append(source_column)
             rename_columns[source_column] = target
         else:
-            raise ConfigError(f'Column config `{column}` has errors.')
+            raise SpecError(f"Column config `{column}` has errors.")
 
     df = df[use_columns]
     if rename_columns:

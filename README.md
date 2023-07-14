@@ -48,7 +48,7 @@ df = play.run(df)
 
 ### Input and output locations
 
-Under the hood, `runpandarun` uses [smart_open](https://github.com/RaRe-Technologies/smart_open), so additionaly to `stdin` / `stdout`, the input and output locations can be anything that `smart_open` can read and write to, like:
+Under the hood, `runpandarun` uses [smart_open](https://github.com/RaRe-Technologies/smart_open), so additionally to `stdin` / `stdout`, the input and output locations can be anything that `smart_open` can read and write to, like:
 
 ```
 s3://my_bucket/data.csv
@@ -86,7 +86,7 @@ After this, you should be able to execute in your terminal:
 
 ## Playbook
 
-The playbook can be programatically optained in different ways:
+The playbook can be programmatically obtained in different ways:
 
 ```python
 from runpandarun import Playbook
@@ -102,7 +102,7 @@ columns:
 index: foo
 """)
 
-# directly via the Playbook object
+# directly via the Playbook object (which is a pydantic object)
 play = Playbook(columns=[
     "column1",
     {"id": "RegisterNr"},
@@ -191,11 +191,11 @@ Here are examples:
 
 ```yaml
 ops:
-  sort_values:                    # pass parameters for pandas function `sort_values`
-    by:
-      - column1
-      - column2
-    ascending: false
+  - sort_values:                    # pass parameters for pandas function `sort_values`
+      by:
+        - column1
+        - column2
+      ascending: false
 ```
 
 #### De-duplicate
@@ -206,14 +206,14 @@ when using a subset of columns, use in conjunction with `sort_values` to make su
 
 ```yaml
 ops:
-  drop_duplicates:              # pass parameters for pandas function `drop_duplicates`
-    subset:
-      - column1
-      - column2
-    keep: last
+  - drop_duplicates:              # pass parameters for pandas function `drop_duplicates`
+      subset:
+        - column1
+        - column2
+      keep: last
 ```
 
-## developement
+## development
 
 Package is managed via [Poetry](https://python-poetry.org/)
 
