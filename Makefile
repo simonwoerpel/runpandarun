@@ -1,8 +1,8 @@
 all: clean install test
 
 lint:
-	poetry run flake8 investigraph --count --select=E9,F63,F7,F82 --show-source --statistics
-	poetry run flake8 investigraph --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+	poetry run flake8 runpandarun --count --select=E9,F63,F7,F82 --show-source --statistics
+	poetry run flake8 runpandarun --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
 pre-commit:
 	poetry run pre-commit install
@@ -12,7 +12,7 @@ test:
 	poetry run pytest tests -v --capture=sys --cov=runpandarun --cov-report term-missing
 
 typecheck:
-	poetry run mypy --strict investigraph
+	poetry run mypy --strict runpandarun
 
 clean:
 	rm -fr build/
