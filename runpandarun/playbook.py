@@ -35,8 +35,11 @@ class Playbook(BaseModel):
     def __init__(self, **data):
         super().__init__(**expandvars(data))
 
-    def run(self, write: bool | None = True) -> pd.DataFrame:
-        df = read_pandas(self.in_uri, handler=self.handler)
+    def run(
+        self, df: pd.DataFrame | None = None, write: bool | None = True
+    ) -> pd.DataFrame:
+        if df is None:
+            df = read_pandas(self.in_uri, handler=self.handler)
         if self.columns:
             df = logic.apply_columns(df, self.columns)
         if self.ops:
