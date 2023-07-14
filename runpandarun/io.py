@@ -1,57 +1,73 @@
 import contextlib
 import sys
 from io import BytesIO, StringIO
-from typing import Literal, TypeVar
+from typing import Any, Literal, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, field_validator
 from smart_open import open
 
-from .types import Kwargs, PathLike
+from .util import PathLike
 
 IO = TypeVar("IO", bound=StringIO | BytesIO)
 
 
 class Handler(BaseModel):
-    name: str
-    kwargs: Kwargs = {}
+    options: dict[str, Any] | None = {}
+    uri: str | None = "-"
 
-    @field_validator("name")
+
+class ReadHandler(Handler):
+    handler: str | None = "read_csv"
+
+    @field_validator("handler")
     def validate_handler(cls, v):
-        handler = getattr(pd, v, getattr(pd.DataFrame, v, None))
+        handler = getattr(pd, v, None)
         if handler is None:
             raise ValueError("Unknown handler: `%s`" % v)
         return v
 
-    def handle(self, io: IO, df: pd.DataFrame | None = None) -> pd.DataFrame | None:
-        if df is not None:
-            handler = getattr(df, self.name)
-        else:
-            handler = getattr(pd, self.name)
-        return handler(io, **self.kwargs)
+    def handle(self, io: IO | str | None = None) -> pd.DataFrame:
+        io = io or self.uri
+        return read_pandas(io, self.handler, **self.options)
 
 
-DefaultReadHandler = Handler(name="read_csv")
-DefaultWriteHandler = Handler(name="to_csv")
+class WriteHandler(Handler):
+    handler: str | None = "to_csv"
+
+    @field_validator("handler")
+    def validate_handler(cls, v):
+        handler = getattr(pd.DataFrame, v, None)
+        if handler is None:
+            raise ValueError("Unknown handler: `%s`" % v)
+        return v
+
+    def handle(self, df: pd.DataFrame, io: IO | str | None = None) -> None:
+        io = io or self.uri
+        return write_pandas(io, df, self.handler, **self.options)
 
 
 def read_pandas(
     uri: PathLike | IO,
+    handler: str | None = "read_csv",
     mode: str | None = "rb",
-    handler: Handler | None = DefaultReadHandler,
+    **kwargs
 ) -> pd.DataFrame:
+    handler = getattr(pd, handler)
     with smart_open(uri, sys.stdin.buffer, mode=mode) as io:
-        return handler.handle(io)
+        return handler(io, **kwargs)
 
 
 def write_pandas(
     uri: PathLike | IO,
     df: pd.DataFrame,
+    handler: str | None = "to_csv",
     mode: str | None = "wb",
-    handler: Handler | None = DefaultWriteHandler,
+    **kwargs
 ) -> None:
+    handler = getattr(df, handler)
     with smart_open(uri, sys.stdout.buffer, mode=mode) as io:
-        return handler.handle(io, df)
+        return handler(io, **kwargs)
 
 
 @contextlib.contextmanager

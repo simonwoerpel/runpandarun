@@ -1,19 +1,21 @@
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeAlias
 
 import banal
+import fingerprints
+import normality
 import numpy as np
 import pandas as pd
 from smart_open import parse_uri
 
-from .types import PathLike
+PathLike: TypeAlias = str | os.PathLike[str]
 
 
 def safe_eval(value):
     return eval(
-        value,
+        str(value),
         {
             "__builtins__": {
                 "pd": pd,
@@ -33,6 +35,9 @@ def safe_eval(value):
                 "isinstance": isinstance,
                 "datetime": datetime,
                 "timedelta": timedelta,
+                "banal": banal,
+                "normality": normality,
+                "fingerprints": fingerprints,
             }
         },
     )
@@ -52,3 +57,10 @@ def absolute_path(path: PathLike, base: PathLike) -> PathLike | str:
     if path == "-" or parse_uri(str(path)).scheme != "file":
         return path
     return os.path.normpath((Path(base).parent / Path(path)).absolute())
+
+
+def getattr_by_path(thing: Any, path: str) -> Any:
+    # getattr(foo, "bar.baz")
+    for p in path.split("."):
+        thing = getattr(thing, p)
+    return thing

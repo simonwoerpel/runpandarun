@@ -1,13 +1,7 @@
 # pandas applymap
-in_uri: ./testdata.csv
-copy: true
 read:
-  skipfooter: 1
-columns:
-  - value: amount
-  - state
-  - date
-dt_index: date
-ops:
-  - applymap:
+  uri: ./testdata.csv
+operations:
+  - handler: DataFrame.applymap
+    options:
       func: 'lambda x: x.lower() if isinstance(x, str) else x'

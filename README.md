@@ -2,9 +2,7 @@
 
 :panda_face: :panda_face: :panda_face: :panda_face: :panda_face: :panda_face: :panda_face:
 
-A simple interface written in python for reproducible i/o workflows around tabular data via [`pandas`](https://pandas.pydata.org/) `DataFrame` specified via `yaml` "playbooks".
-
-Currently supports `[c|t]sv`, `xls[x]` and `json` input data. Output is always `csv`
+A simple interface written in python for reproducible i/o workflows around tabular data via [pandas](https://pandas.pydata.org/) `DataFrame` specified via `yaml` "playbooks".
 
 **NOTICE**
 
@@ -17,11 +15,20 @@ As of july 2023, this package only handles pandas transform logic, no data wareh
 Specify your operations via `yaml` syntax:
 
 ```yaml
-columns:                              # only use specified columns
-  - id: identifier                    # rename original column `identifier` to `id`
-  - name
-  - date
-dt_index: date                        # set date-based index
+read:
+  uri: ./data.csv
+  options:
+    skiprows: 3
+
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+  - handler: Series.map
+    column: slug
+    options:
+      func: "lambda x: normality.slugify(x) if isinstance(x) else 'NO DATA'"
 ```
 
 store this as a file `pandas.yml`, and apply a data source:
@@ -34,19 +41,65 @@ Or, use within your python scripts:
 from runpandarun import Playbook
 
 play = Playbook.from_yaml("./pandas.yml")
-play.run(in_uri="./data.csv", out_uri="./output.csv")
+df = play.run()  # get the transformed dataframe
 
-# if you want to export the data into another format, do it manually:
-df = play.run(in_uri="./data.csv")
+# change playbook parameters on run time:
+play.read.uri = "s3://my-bucket/data.csv"
+df = play.run()
 df.to_excel("./output.xlsx")
 
-# the play can of course be applied directly to a data frame:
+# the play can be applied directly to a data frame,
+# this allows more granular control
+df = get_my_data_from_somewhere_else()
 df = play.run(df)
 ```
 
+## Installation
+
+Requires at least python3.10 Virtualenv use recommended.
+
+Additional dependencies (`pandas` et. al.) will be installed automatically:
+
+    pip install runpandarun
+
+After this, you should be able to execute in your terminal:
+
+    runpandarun --help
+
 ## Reference
 
-### Input and output locations
+The playbook can be programmatically obtained in different ways:
+
+```python
+from runpandarun import Playbook
+
+# via yaml file
+play = Playbook.from_yaml('./path/to/config.yml')
+
+# via yaml string
+play = Playbook.from_string("""
+operations:
+- handler: DataFrame.sort_values
+  options:
+    by: my_sort_column
+""")
+
+# directly via the Playbook object (which is a pydantic object)
+play = Playbook(operations=[{
+    "handler": "DataFrane.sort_values",
+    "options": {"by": "my_sort_column"}
+}])
+```
+
+All options within the Playbook are optional, if you apply an empty play to a DataFrame, it will just remain untouched (but `runpandarun` won't break)
+
+The playbook has three sections:
+
+- read: instructions for reading in a source dataframe
+- operations: a list of functions with their options (kwargs) executed in the given order
+- write: instructions for saving a transformed dataframe to a target
+
+### Read and write
 
 Under the hood, `runpandarun` uses [smart_open](https://github.com/RaRe-Technologies/smart_open), so additionally to `stdin` / `stdout`, the input and output locations can be anything that `smart_open` can read and write to, like:
 
@@ -72,146 +125,203 @@ So, for example, you could transform a source from `s3` to a `sftp` endpoint:
 
     runpandarun pandas.yml -i s3://my_bucket/data.csv -o sftp://user@host/data.csv
 
-## Installation
+#### Yaml spec
 
-Requires at least python3.10 Virtualenv use recommended.
+you can overwrite the `uri` arguments in the command line with `-i / --in-uri` and `-o / --out-uri`
 
-Additional dependencies (`pandas` et. al.) will be installed automatically:
-
-    pip install runpandarun
-
-After this, you should be able to execute in your terminal:
-
-    runpandarun --help
-
-## Playbook
-
-The playbook can be programmatically obtained in different ways:
-
-```python
-from runpandarun import Playbook
-
-# via yaml file
-play = Playbook.from_yaml('./path/to/config.yml')
-
-# via yaml string
-play = Playbook.from_string("""
-columns:
-- id: RegisterNr
-- column1
-index: foo
-""")
-
-# directly via the Playbook object (which is a pydantic object)
-play = Playbook(columns=[
-    "column1",
-    {"id": "RegisterNr"},
-}])
-```
-
-### examples
-
-See the yaml files in [./tests/fixtures/](./tests/fixtures/)
-
-### playbook spec
-
-All options within the Playbook are optional, if you apply an empty play to a DataFrame, it will just remain untouched (but `runpandarun` won't break)
-
-#### Source and target
-
-optional, `cli` arguments override this.
+More information about handlers and their options: [Pandas IO tools](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html)
 
 ```yaml
-in_uri:             # input uri of json or tabular source, anything that smart_open can read
-out_uri:            # output uri, anything that smart_open can write to
-```
+read:
+uri: s3://my-bucket/data.xls    # input uri, anything that smart_open can read
+  handler: read_excel           # default: guess by file extension, fallback: read_csv
+  options:                      # options for the handler
+    skiprows: 2
 
-#### Request params
-
-If the `in_uri` is a http source, you can pass `params` and `headers` that will feed into [`requests.get()`](https://requests.readthedocs.io/en/master/user/quickstart/#make-a-request)
-
-```yaml
-in_uri: https://example.org/data.csv
-request:
-  params:
-    format: csv
-  header:
-    "api-key": 123abc
-```
-
-##### env vars
-
-For api keys or other secrets, you can put environment variables into the config. They will simply resolved via `os.path.expandvars`
-
-```yaml
-request:
-  header:
-    "api-key": ${MY_API_KEY}
-```
-
-#### Columns
-
-specify list of subset columns to use
-
-```yaml
-columns:
-  - column1
-  - column2: origColumnName     # optional renaming mapping (rename `origColumnName` to `column2`)
-```
-
-#### Index
-
-specify which column (after renaming was applied) should be the index. Otherwise, pandas default index is used.
-
-```yaml
-index: person_id                # set column `person_id` as index
-```
-
-```yaml
-dt_index: event_date            # specify a date/time-based index instead
-```
-
-you can provide additional params to `pd.DateTimeIndex`:
-
-```yaml
-dt_index:
-  column: event_date
-  format: "%d.%m.%Y"
+write:
+  uri:                          # output uri, anything that smart_open can write to
+  handler: write_excel          # default: guess by file extension, fallback: write_csv
+  options:                      # options for the handler
+    index: false
 ```
 
 ### Operations
 
-Apply [any valid operation that is a function attribute of `pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/frame.html) (like `drop_duplicates`, `sort_values`, `fillna` ...) in the given order with optional function arguments that will be passed to the call.
+The `operations` key of the yaml spec holds the transformations that should be applied to the data in order.
 
-Here are examples:
+An operation can be any function from [pd.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/frame.html) or [pd.Series](https://pandas.pydata.org/pandas-docs/stable/reference/series.html). Refer to these documentations to see their possible options (as in `**kwargs`).
 
-#### Sort
-
-[`pandas.DataFrame.sort_values()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
+For the handler, specify the module path without a `pd` or `pandas` prefix, just `DataFrame.<func>` or `Series.<func>`. When using a function that applies to a `Series`, tell :panda_face: which one to use via the `column` prop.
 
 ```yaml
-ops:
-  - sort_values:                    # pass parameters for pandas function `sort_values`
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+```
+
+This exactly represents this python call to the processed dataframe:
+
+```python
+df.rename(columns={"value": "amount"})
+```
+
+
+### env vars
+
+For api keys or other secrets, you can put environment variables anywhere into the config. They will simply resolved via `os.path.expandvars`
+
+```yaml
+read:
+  options:
+    storage_options:
+      header:
+        "api-key": ${MY_API_KEY}
+```
+
+## Example
+
+A full playbook example that covers a few of the possible cases.
+
+See the yaml files in [./tests/fixtures/](./tests/fixtures/) for more.
+
+```yaml
+read:
+  uri: https://api.example.org/data?format=csv
+  options:
+    storage_options:
+      header:
+        "api-key": ${API_KEY}
+    skipfooter: 1
+
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+
+  - handler: Series.str.lower
+    column: state
+
+  - handler: DataFrame.assign
+    options:
+      city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
+
+  - handler: DataFrame.set_index
+    options:
+      keys:
+        - city_id
+
+  - handler: DataFrame.sort_values
+    options:
+      by:
+        - state
+        - city
+
+write:
+  uri: ftp://user:${FTP_PASSWORD}@host/data.csv
+  options:
+    index: false
+```
+
+## How to...
+
+### Rename columns
+
+[`DataFrame.rename`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.rename.html)
+
+```yaml
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+        "First name": first_name
+```
+
+### Apply modification to a column
+
+[`Series.map`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.map.html)
+
+```yaml
+operations:
+  - handler: Series.map
+    column: my_column
+    options:
+      func: "lambda x: x.lower()"
+```
+
+### Set an index
+
+[`DataFrame.set_index`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.set_index.html)
+
+```yaml
+operations:
+  - handler: DataFrame.set_index
+    options:
+      keys:
+        - city_id
+```
+
+### Sort values
+
+[`DataFrame.sort_values`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
+
+```yaml
+operations:
+  - sort_values:
       by:
         - column1
         - column2
       ascending: false
 ```
 
-#### De-duplicate
+### De-duplicate
 
-[`pandas.DataFrame.drop_duplicates()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
+[`DataFrame.drop_duplicates`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
 
 when using a subset of columns, use in conjunction with `sort_values` to make sure to keep the right records
 
 ```yaml
-ops:
-  - drop_duplicates:              # pass parameters for pandas function `drop_duplicates`
+operations:
+  - drop_duplicates:
       subset:
         - column1
         - column2
       keep: last
 ```
+
+### Compute a new column based on existing data
+
+[`DataFrame.assign`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.assign.html)
+
+```yaml
+operations:
+  - handler: DataFrame.assign
+    options:
+      city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
+```
+
+## save eval
+
+Ok wait, you are executing arbitrary python code in the yaml specs?
+
+Not really, there is a strict allow list of possible modules that can be used. See [runpandarun.util.safe_eval](https://github.com/investigativedata/runpandarun/blob/develop/runpandarun/util.py)
+
+This includes:
+- any pandas or numpy modules
+- [normality](https://github.com/pudo/normality/)
+- [fingerprints](https://github.com/alephdata/fingerprints)
+
+So, this would, of course, **NOT WORK** ([as tested here](https://github.com/investigativedata/runpandarun/blob/develop/tests/test_playbook.py))
+
+```yaml
+operations:
+  - handler: DataFrame.apply
+    func: "__import__('os').system('rm -rf /')"
+```
+
 
 ## development
 
@@ -230,7 +340,9 @@ Test:
 ## Funding
 
 Since July 2023, this project is part of [investigraph](https://investigraph.dev) and development of this project is funded by
+
 [Media Tech Lab Bayern batch #3](https://github.com/media-tech-lab)
+
 <a href="https://www.media-lab.de/en/programs/media-tech-lab">
     <img src="https://raw.githubusercontent.com/media-tech-lab/.github/main/assets/mtl-powered-by.png" width="240" title="Media Tech Lab powered by logo">
 </a>

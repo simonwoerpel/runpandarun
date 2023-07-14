@@ -18,5 +18,8 @@ def run(
     if not path.exists() or not path.is_file():
         raise ValueError("Invalid path: `%s`" % path)
     play = Playbook.from_yaml(path)
-    play = play.merge(in_uri=in_uri, out_uri=out_uri)
-    play.run()
+    if in_uri is not None:
+        play.read.uri = in_uri
+    if out_uri is not None:
+        play.write.uri = out_uri
+    play.run(write=True)

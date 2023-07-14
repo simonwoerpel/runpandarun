@@ -1,17 +1,33 @@
-in_uri: ./testdata.csv
-out_uri: ./testdata_transformed.csv
-handler:
-  name: read_csv
-  kwargs:
+read:
+  uri: ./testdata.csv
+  options:
     skipfooter: 1
-  request:
-    header:
-      "User-Agent": "runpandarun"
-columns:
-  - value: amount
-  - state
-  - date
-dt_index: date
-ops:
-  - sort_values:
-      by: state
+
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+
+  - handler: Series.str.lower
+    column: state
+
+  - handler: DataFrame.assign
+    options:
+      city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
+
+  - handler: DataFrame.set_index
+    options:
+      keys:
+        - city_id
+
+  - handler: DataFrame.sort_values
+    options:
+      by:
+        - state
+        - city
+
+write:
+  uri: ./testdata_transformed.csv
+  options:
+    index: false

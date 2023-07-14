@@ -2,58 +2,38 @@ import os
 
 from runpandarun import Playbook
 
-EXPECTED = Playbook(
-    in_uri="testdata.csv",
-    out_uri="testdata_transformed.csv",
-    columns=[{"value": "amount"}, "state", "date"],
-    dt_index="date",
-)
-
 
 def test_spec_initialization(fixtures_path):
-    # empty doesn't fail
+    # empty doesn't fail and has some defaults
     play = Playbook()
-    assert play.in_uri == "-"
-    assert play.out_uri == "-"
+    assert play.read.uri == "-"
+    assert play.read.handler == "read_csv"
+    assert play.write.uri == "-"
+    assert play.write.handler == "to_csv"
+    assert play.operations == []
 
     # pydantic way
-    play = Playbook(in_uri="testdata.csv")
-    assert play.in_uri == EXPECTED.in_uri
+    play = Playbook(read={"uri": "./testdata.csv"})
+    assert play.read.uri == "./testdata.csv"
 
     # yaml
     path = fixtures_path / "spec.yml"
     play = Playbook.from_yaml(path)
-    assert play.in_uri.endswith(EXPECTED.in_uri)
-    assert play.out_uri.endswith(EXPECTED.out_uri)
-    assert play.columns == EXPECTED.columns
-    assert play.dt_index == EXPECTED.dt_index
-    assert play.handler.kwargs["skipfooter"] == 1
+    assert play.read.options["skipfooter"] == 1
 
     # from string with env vars
     config = """
-    in_uri: ${API_URL}
-    request:
-      header:
-        key: $API_KEY
-    columns:
-      - a
-      - b: c
-      - d: $NEW_COLUMN
+    read:
+      uri: ${SECRET_LOCATION}
+    operations:
+      - handler: DataFrame.apply
+        options:
+          func: ${A_SECRET_TRANSFORMATION}
     """
 
-    os.environ["API_KEY"] = "a secret key"
-    os.environ["API_URL"] = "https://example.org"
-    os.environ["NEW_COLUMN"] = "e"
+    os.environ["SECRET_LOCATION"] = "sftp://user:password/data.csv"
+    os.environ["A_SECRET_TRANSFORMATION"] = "str.lower"
 
     play = Playbook.from_string(config)
-
-    assert play.request.header["key"] == "a secret key"
-    assert play.in_uri == "https://example.org"
-    assert play.columns[2]["d"] == "e"
-
-
-def test_spec_merge(fixtures_path):
-    play = Playbook.from_yaml(fixtures_path / "spec.yml")
-    assert play.in_uri.endswith("/testdata.csv")
-    play = play.merge(in_uri="-")
-    assert play.in_uri == "-"
+    assert play.read.uri == "sftp://user:password/data.csv"
+    assert play.operations[0].options["func"] == "str.lower"

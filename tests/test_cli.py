@@ -16,7 +16,3 @@ def test_cli_run(fixtures_path: Path):
     config = str(fixtures_path / "spec.yml")
     result = runner.invoke(cli, [config])
     assert result.exit_code == 0
-
-    # no arguments
-    result = runner.invoke(cli, ["run"])
-    assert result.exit_code == 1

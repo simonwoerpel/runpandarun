@@ -31,6 +31,8 @@ smart-open = {extras = ["all"], version = "^6.3.0"}
 typer = "0.9.0"
 pydantic = "^2.0.3"
 banal = "^1.0.6"
+normality = "^2.4.0"
+fingerprints = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"

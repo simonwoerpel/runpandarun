@@ -1,65 +1,78 @@
-from typing import Any, TypeAlias, TypeVar
+from typing import Any, TypeVar
 
-import pandas as pd
 import yaml
-from banal import clean_dict
-from pydantic import BaseModel
+from pandas import DataFrame, Series
+from pydantic import BaseModel, field_validator
 
-from . import logic
-from .io import Handler, read_pandas, write_pandas
-from .logic.columns import Column
-from .logic.ops import Operation
-from .types import PathLike
-from .util import absolute_path, expandvars
+from .exceptions import SpecError
+from .io import ReadHandler, WriteHandler
+from .util import PathLike, absolute_path, expandvars, getattr_by_path, safe_eval
 
 P = TypeVar("P", bound="Playbook")
 
-ODict: TypeAlias = dict[str, Any] | None
 
-
-class RequestParams(BaseModel):
-    params: ODict = None
-    header: ODict | None = None
-
-
-class Playbook(BaseModel):
-    in_uri: str | None = "-"
-    out_uri: str | None = "-"
-    handler: Handler | None = Handler(name="read_csv")
-    request: RequestParams | None = None
-    columns: list[Column] | None = None
-    index: str | None = None
-    dt_index: str | dict[str, Any] | None = None
-    ops: list[Operation] | None = None
-
+class ExpandMixin:
     def __init__(self, **data):
         super().__init__(**expandvars(data))
 
-    def run(
-        self, df: pd.DataFrame | None = None, write: bool | None = True
-    ) -> pd.DataFrame:
-        if df is None:
-            df = read_pandas(self.in_uri, handler=self.handler)
-        if self.columns:
-            df = logic.apply_columns(df, self.columns)
-        if self.ops:
-            df = logic.apply_ops(df, self.ops)
-        if self.index or self.dt_index:
-            df = logic.apply_index(df, self)
-        if write:
-            write_pandas(self.out_uri, df)
+
+MODULES = {
+    "DataFrame": DataFrame,
+    "Series": Series,
+}
+
+
+class Operation(ExpandMixin, BaseModel):
+    options: dict[str, Any] | None = {}
+    handler: str
+    column: str | None = None
+
+    @field_validator("handler")
+    def validate_handler(cls, v):
+        module, func = v.split(".", 1)
+        if module not in ("DataFrame", "Series"):
+            raise SpecError(f"`{module}` is not any of `DataFrame` or `Series`")
+        try:
+            getattr_by_path(MODULES[module], func)
+        except Exception as e:
+            raise SpecError(f"Could not load function `{v}`: {e}")
+        return v
+
+    def apply(self, df: DataFrame) -> DataFrame:
+        options = {k: safe_eval(v) for k, v in self.options.items()}
+        _, func = self.handler.split(".", 1)
+        if self.column:
+            func = getattr_by_path(df[self.column], func)
+            df[self.column] = func(**options)
+        else:
+            func = getattr_by_path(df, func)
+            df = func(**options)
         return df
 
-    def merge(self, **data) -> P:
-        return self.__class__(**{**self.dict(), **clean_dict(data)})
+
+class Playbook(ExpandMixin, BaseModel):
+    read: ReadHandler | None = ReadHandler()
+    operations: list[Operation] | None = []
+    write: WriteHandler | None = WriteHandler()
+
+    def run(self, df: DataFrame | None = None, write: bool | None = False) -> DataFrame:
+        if df is None:
+            df = self.read.handle()
+
+        for op in self.operations:
+            df = op.apply(df)
+
+        if write:
+            self.write.handle(df)
+        return df
 
     @classmethod
     def from_yaml(cls, path: PathLike) -> P:
         with open(path) as fh:
             data = yaml.safe_load(fh)
         play = cls(**data)
-        play.in_uri = absolute_path(play.in_uri, path)
-        play.out_uri = absolute_path(play.out_uri, path)
+        play.read.uri = absolute_path(play.read.uri, path)
+        play.write.uri = absolute_path(play.write.uri, path)
         return play
 
     @classmethod

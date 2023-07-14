@@ -12,15 +12,14 @@ def test_io_read(fixtures_path):
     assert len(df) == 10000
     assert list(df.columns) == ["state", "city", "amount", "date"]
 
-    df = io.read_pandas(
-        fixtures_path / "testdata.json", handler=io.Handler(name="read_json")
-    )
+    df = io.read_pandas(fixtures_path / "testdata.json", handler="read_json")
     assert len(df) == 10000
     assert list(df.columns) == ["state", "integer", "date"]
     assert not isinstance(df["integer"][0], str)
     df = io.read_pandas(
         fixtures_path / "testdata.json",
-        handler=io.Handler(name="read_json", kwargs={"dtype": {"integer": str}}),
+        handler="read_json",
+        **{"dtype": {"integer": str}}
     )
     assert isinstance(df["integer"][0], str)
 
