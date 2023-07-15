@@ -109,11 +109,7 @@ For example, you could transform a source from `s3` to a `sftp` endpoint:
 
     runpandarun pandas.yml -i s3://my_bucket/data.csv -o sftp://user@host/data.csv
 
-#### Yaml spec
-
 you can overwrite the `uri` arguments in the command line with `-i / --in-uri` and `-o / --out-uri`
-
-More information about handlers and their options: [Pandas IO tools](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html)
 
 ```yaml
 read:
