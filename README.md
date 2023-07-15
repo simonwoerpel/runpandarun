@@ -1,107 +1,68 @@
+[![runpandarun on pypi](https://img.shields.io/pypi/v/runpandarun)](https://pypi.org/project/runpandarun/)
+[![Python test and package](https://github.com/investigativedata/runpandarun/actions/workflows/python.yml/badge.svg)](https://github.com/investigativedata/runpandarun/actions/workflows/python.yml)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Coverage Status](https://coveralls.io/repos/github/investigativedata/runpandarun/badge.svg?branch=main)](https://coveralls.io/github/investigativedata/runpandarun?branch=main)
+[![MIT License](https://img.shields.io/pypi/l/runpandarun)](./LICENSE)
+
 # Run Panda Run
 
 :panda_face: :panda_face: :panda_face: :panda_face: :panda_face: :panda_face: :panda_face:
 
-A simple interface written in python for reproducible & persistent data
-warehousing around small data analysis / processing projects with
-[`pandas`](https://pandas.pydata.org/).
+A simple interface written in python for reproducible i/o workflows around tabular data via [pandas](https://pandas.pydata.org/) `DataFrame` specified via `yaml` "playbooks".
 
-Currently supports `csv` and `json` resources.
+**NOTICE**
 
-Useful to build an automated workflow like this:
-
-**1. Download** fetch datasets from different remote or local sources, store
-them somewhere (with respect to versioning / incremental updates), do some
-general cleaning, [processing](#operations) and get a nice
-[`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
-for each dataset and
-
-**2. Wrangle** your data somehow, store and load [revisions](#revisions) to
-share *source of truth* between notebooks or scripts.
-
-[**3. Publish**](#publish) some of the wrangled data somewhere where other
-services (Google Spreadsheet, Datawrapper, even another `Datastore`) can work
-on further
-
-It includes a simple command-line interface, e.g. for automated
-processing via cronjobs.
+As of july 2023, this package only handles pandas transform logic, no data warehousing anymore.  See [archived version](https://github.com/simonwoerpel/runpandarun)
 
 ## Quickstart
 
 [Install via pip](#installation)
 
-Specify your datasets via `yaml` syntax:
+Specify your operations via `yaml` syntax:
 
 ```yaml
-datasets:
-  my_dataset:
-    csv_url: http://example.org/data.csv  # url to fetch csv file from
-    columns:                              # only use specified columns
-      - id: identifier                    # rename original column `identifier` to `id`
-      - name
-      - date
-    dt_index: date                        # set date-based index
-  another_dataset:
-    json_url: !ENV ${SECRET_URL}          # see below for env vars
-    ...
+read:
+  uri: ./data.csv
+  options:
+    skiprows: 3
+
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+  - handler: Series.map
+    column: slug
+    options:
+      func: "lambda x: normality.slugify(x) if isinstance(x) else 'NO DATA'"
 ```
 
-store this as a file, and set the env var `CONFIG` to the path:
+store this as a file `pandas.yml`, and apply a data source:
 
-        export CONFIG=./path/to/config.yml
+    cat data.csv | runpandarun pandas.yml > data_transformed.csv
+
+Or, use within your python scripts:
 
 ```python
-from runpandarun.datasets import my_dataset, another_dataset
+from runpandarun import Playbook
 
-df = my_dataset.get_df()
-df['name'].plot.hist()
+play = Playbook.from_yaml("./pandas.yml")
+df = play.run()  # get the transformed dataframe
 
-another_dataset.daily.mean().plot()  # some handy shorthands for pandas
+# change playbook parameters on run time:
+play.read.uri = "s3://my-bucket/data.csv"
+df = play.run()
+df.to_excel("./output.xlsx")
+
+# the play can be applied directly to a data frame,
+# this allows more granular control
+df = get_my_data_from_somewhere_else()
+df = play.run(df)
 ```
-
-Handle data persistence and state of datasets:
-
-```python
-from runpandarun.datasets import my_dataset
-
-# update data from remote source:
-my_dataset = my_dataset.update()
-
-# update complete store:
-from runpandarun import Datastore
-
-store = Datastore()
-store.update()
-
-# save a revision
-df = my_dataset.get_df()
-df = wrangle(df)
-my_dataset.save(df, 'wrangled')
-
-# get this revision (in another script)
-df = my_dataset['wrangled']
-
-# publish
-df = my_dataset.get_df()
-clean(df)
-my_dataset.publish(df, name='cleaned', overwrite=True)
-```
-
-Update your datastore from the command-line (for use in cronjobs e.g.)
-
-Specify config path either via `--config` or env var `CONFIG`
-
-Update all:
-
-    runpandarun update --config /path/to/config.yml
-
-Only specific datasets and with env var:
-
-    CONFIG=/path/to/config.yml runpandarun update my_dataset my_other_dataset ...
 
 ## Installation
 
-Requires python3. Virtualenv use recommended.
+Requires at least python3.10 Virtualenv use recommended.
 
 Additional dependencies (`pandas` et. al.) will be installed automatically:
 
@@ -109,397 +70,265 @@ Additional dependencies (`pandas` et. al.) will be installed automatically:
 
 After this, you should be able to execute in your terminal:
 
-    runpandarun -h
+    runpandarun --help
 
-You should as well be able to import it in your python scripts:
+## Reference
 
-```python
-from runpandarun import Datastore
-
-# start the party...
-```
-
-## Config
-
-**Easy**
-
-Set an environment variable `CONFIG` pointing to your yaml file.
-
-`runpandarun` will find your config and you are all set (see [quickstart](#quickstart))
-
-**Manually**
-
-Of course you can initialize the config manually:
-
-- from a file
-- as yaml string
-- as a python dict
+The playbook can be programmatically obtained in different ways:
 
 ```python
-from runpandarun import Datastore
+from runpandarun import Playbook
 
-store = Datastore('./path/to/config.yml')
-store = Datastore(config_dict)
-store = Datastore("""
-    datasets:
-      my_dataset:
-      ...
+# via yaml file
+play = Playbook.from_yaml('./path/to/config.yml')
+
+# via yaml string
+play = Playbook.from_string("""
+operations:
+- handler: DataFrame.sort_values
+  options:
+    by: my_sort_column
 """)
+
+# directly via the Playbook object (which is a pydantic object)
+play = Playbook(operations=[{
+    "handler": "DataFrane.sort_values",
+    "options": {"by": "my_sort_column"}
+}])
 ```
 
-To quickly test your config for a dataset named `my_dataset`, you can use the
-command-line (this will print the generated csv to stdout):
+All options within the Playbook are optional, if you apply an empty play to a DataFrame, it will just remain untouched (but `runpandarun` won't break)
 
-    CONFIG=config.yml runpandarun print my_dataset
+The playbook has three sections:
 
-### examples
+- read: instructions for reading in a source dataframe
+- operations: a list of functions with their options (kwargs) executed in the given order
+- write: instructions for saving a transformed dataframe to a target
 
-See the yaml files in [./example/](./example/)
+### Read and write
 
-### top-level options
+`pandas` can read and write from many local and remote sources and targets.
 
-```yaml
-storage:
-  data_root: ./path/                    # absolute or relative path where to store the files
-publish:
-  handlers:
-    filesystem:
-      public_root: !ENV ${PUBLIC_ROOT}  # where to store published data, e.g. a path to a webserver root via env var
-      enabled: true
-    gcloud:
-      bucket: !ENV ${GOOGLE_BUCKET}     # or in a google cloud storage bucket...
-      enabled: !ENV ${GOOGLE_PUBLISH}   # enable or disable a publish handler based on environment
-combine:
-  - dataset1                            # keys of defined datasets for quick merging
-  - dataset2
-datasets:                               # definition for datasets
-  dataset1:
-    csv_url: ...
-```
+More information about handlers and their options: [Pandas IO tools](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html)
 
-### dataset options
+For example, you could transform a source from `s3` to a `sftp` endpoint:
 
-**Source link**
+    runpandarun pandas.yml -i s3://my_bucket/data.csv -o sftp://user@host/data.csv
 
-- *required*
-- any of:
+you can overwrite the `uri` arguments in the command line with `-i / --in-uri` and `-o / --out-uri`
 
 ```yaml
-    csv_url:            # url to remote csv, the response must be the direct csv content
-                        # this can also be a Google Spreadsheet "published to the web" in csv format
-    csv_local:          # absolute or relative path to a file on disk
-    json_url:           # url to remote json, the response should be text or application/json
-    json_local:         # absolute or relative path to a file on disk
-```
+read:
+  uri: s3://my-bucket/data.xls  # input uri, anything that pandas can read
+  handler: read_excel           # default: guess by file extension, fallback: read_csv
+  options:                      # options for the handler
+    skiprows: 2
 
-**Request params**
-
-- *optional*
-- for each source url, you can pass `params` and `headers` that will feed into
-  [`requests.get()`](https://requests.readthedocs.io/en/master/user/quickstart/#make-a-request)
-
-```yaml
-    csv_url: https://example.org
-    request:
-      params:
-        format: csv
-      header:
-        "api-key": 123abc
-```
-
-**Incremental**
-
-- *optional*
-- instead of versioning the downloaded datasets and only use the latest one,
-  this flag allows to combine all the downloaded data over time to one dataset.
-  Use case example: A publisher releases updated data each day under the same url
-
-```yaml
-    incremental: true
-```
-
-**Columns**
-
-- *optional*
-- specify list of subset columns to use
-
-```yaml
-    columns:
-      - column1
-      - column2: origColumnName     # optional renaming mapping (rename `origColumnName` to `column2`)
-```
-
-**Index**
-
-- *optional*
-- specify which column (after renaming was applied) should be the index
-- default: `id`
-
-```yaml
-    index: person_id                # set column `person_id` as index
-```
-
-```yaml
-    dt_index: event_date            # specify a date/time-based index instead
-```
-
-```yaml
-    dt_index:
-      column: event_date
-      format: "%d.%m.%Y"
+write:
+  uri: ./data.xlsx              # output uri, anything that pandas can write to
+  handler: write_excel          # default: guess by file extension, fallback: write_csv
+  options:                      # options for the handler
+    index: false
 ```
 
 ### Operations
 
-- *optional*
+The `operations` key of the yaml spec holds the transformations that should be applied to the data in order.
 
-Apply [any valid operation that is a function attribute of `pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/frame.html)
-(like `drop_duplicates`, `sort_values`, `fillna` ...) in the given order with optional
-function arguments that will be passed to the call.
+An operation can be any function from [pd.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/frame.html) or [pd.Series](https://pandas.pydata.org/pandas-docs/stable/reference/series.html). Refer to these documentations to see their possible options (as in `**kwargs`).
 
-Default operations: `['drop_duplicates', 'sort_index']`
-
-Disable:
-```yaml
-    ...
-    ops: false
-```
-
-Here are examples:
-
-**Sort**
-
-[`pandas.DataFrame.sort_values()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
+For the handler, specify the module path without a `pd` or `pandas` prefix, just `DataFrame.<func>` or `Series.<func>`. When using a function that applies to a `Series`, tell :panda_face: which one to use via the `column` prop.
 
 ```yaml
-    ...
-    ops:
-      sort_values:                    # pass parameters for pandas function `sort_values`
-        by:
-          - column1
-          - column2
-        ascending: false
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
 ```
 
-**De-duplicate**
+This exactly represents this python call to the processed dataframe:
 
-[`pandas.DataFrame.drop_duplicates()`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
-- when using a subset, use in conjunction with `sort_values` to make sure to keep the right records
-
-```yaml
-    ...
-    ops:
-      drop_duplicates:              # pass parameters for pandas function `drop_duplicates`
-        subset:
-          - column1
-          - column2
-        keep: last
+```python
+df.rename(columns={"value": "amount"})
 ```
-
-### combining
-
-A quick top-level option for easy combining datasets from different sources.
-
-This happens via
-[`pandas.concat`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html)
-and decides if it should concat *long* or *wide* (aka `pandas.concat(..., axis=1)`)
-
-- **long**: if index name and column names accross the specified datasets in config `combine` are the same
-- **wide**: if index is the same accross the specified datasets in config `combine`
-
-TODO: *more to come... (aka merging)*
 
 
 ### env vars
 
-For api keys or other secrets, you can put environment variables into the config:
+For api keys or other secrets, you can put environment variables anywhere into the config. They will simply resolved via `os.path.expandvars`
 
 ```yaml
-storage:
-  data_root: !ENV '${DATA_ROOT}/data/'
-datasets:
-  google_places:
-    json_url: https://maps.googleapis.com/maps/api/place/findplacefromtext/json
-    request:
-      params:
-        key: !ENV ${GOOGLE_APY_KEY}
-    ...
+read:
+  options:
+    storage_options:
+      header:
+        "api-key": ${MY_API_KEY}
 ```
 
-## Usage in your scripts
+## Example
 
-Once set up, you can start moving the data warehousing out of your analysis
-scripts and focus on the analysis itself...
+A full playbook example that covers a few of the possible cases.
 
-```python
-from runpandarun import Datastore
-
-store = Datastore(config)
-
-# all your datasets become direct attributes of the store:
-ds = store.my_dataset
-
-# all your datasets have their computed (according to your config) `pandas.DataFrame` as attribute:
-df = store.my_dataset.get_df()
-
-# get combined df (if specified in the config)
-df = store.combined
-```
-
-### resampling
-
-some time-based shorthands (if you have a `dt_index: true` in your config)
-based on
-[`pandas.DataFrame.resample`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.resample.html)
-
-The resulting `pandas.DataFrame` will only have columns with numeric data in it.
-
-```python
-dataset = store.my_time_based_dataset
-
-s = dataset.daily.mean()
-s.plot()
-
-s = dataset.yearly.count().cumsum()
-s.plot()
-```
-
-Available time aggregations:
-- minutely
-- hourly
-- daily
-- weekly
-- monthly
-- yearly
-
-Available aggregation methods:
-- sum
-- mean
-- max
-- min
-- count
-
-For more advanced resampling, just work on your dataframes directly...
-
-## Publish
-
-After the workflow is done, you can publish some (or all) results.
-
-```python
-dataset = store.my_dataset
-df1 = do_something_with(dataset.get_df())
-dataset.publish(df1, overwrite=True, include_source=True)
-df2 = do_something_else_with(dataset.get_df())
-dataset.publish(df2, name='filtered_for_europe', format='json')
-```
-
-For behaviour reasons the `overwrite`-flag must be set explicitly (during
-function execution or in config, see below), otherwise it will raise if a
-public file already exists. To avoid overwriting, set a different name.
-
-The `publish()` parameters can be set in the config as well, either globally or
-per dataset, specified for each handler (currently `filesystem` or `gcloud`).
-Dataset-specific settings overwrite global ones for the storage handler.
+See the yaml files in [./tests/fixtures/](./tests/fixtures/) for more.
 
 ```yaml
-publish:
-  overwrite: true               # global option for all handlers: always overwrite existing files
-  with_timestamp: true          # include current timestamp in filename
-  handlers:
-    filesystem:
-      public_root: /path/to/a/dir/a/webserver/can/serve/
-      include_source: true
-    gcloud:
-      bucket: my-bucket-name
-      include_source: false
-...
-datasets:
-  my_dataset:
-    ...
-    publish:
-      gcloud:
-        bucket: another-bucket
-        include_source: true
-        format: json
-        name: something
+read:
+  uri: https://api.example.org/data?format=csv
+  options:
+    storage_options:
+      header:
+        "api-key": ${API_KEY}
+    skipfooter: 1
+
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+
+  - handler: Series.str.lower
+    column: state
+
+  - handler: DataFrame.assign
+    options:
+      city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
+
+  - handler: DataFrame.set_index
+    options:
+      keys:
+        - city_id
+
+  - handler: DataFrame.sort_values
+    options:
+      by:
+        - state
+        - city
+
+write:
+  uri: ftp://user:${FTP_PASSWORD}@host/data.csv
+  options:
+    index: false
 ```
 
-**TODO**: currently only storing to a filesystem or google cloud storage implemented.
+## How to...
 
-But features could be:
-- goolge spreadsheet
-- ftp
-- s3
-- ...
+### Rename columns
 
+[`DataFrame.rename`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.rename.html)
 
-## Revisions
-
-At any time between reading data in and publishing you can store and get
-revisions of a dataset. This is usually a `pd.DataFrame` in an intermediate
-state, e.g. after date enriching but before analysis.
-
-This feature can be used in an automated processing workflow consisting of
-multiple notebooks to share DataFrames between each other. The underlying
-storage mechanism is [pickle](https://docs.python.org/3/library/pickle.html) to
-make sure a DataFrame revision behaves as expected. This comes with the
-downside that pickle's are not safe to share between different systems, but to
-re-create them in another environment, that's what a reproducible workflow is
-for, right?
-
-**store a revision**
-
-```python
-ds = store.my_dataset
-df = ds.get_df()
-ds.revisions.save('tansformed', df.T)
+```yaml
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+        "First name": first_name
 ```
 
-**load a revision**
+### Apply modification to a column
 
-```python
-ds = store.my_dataset
-df = ds['transformed']
+[`Series.map`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.map.html)
+
+```yaml
+operations:
+  - handler: Series.map
+    column: my_column
+    options:
+      func: "lambda x: x.lower()"
 ```
 
-**show available revisions**
-```python
-ds = store.my_dataset
-ds.revisions.show()
+### Set an index
+
+[`DataFrame.set_index`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.set_index.html)
+
+```yaml
+operations:
+  - handler: DataFrame.set_index
+    options:
+      keys:
+        - city_id
 ```
 
-**iterate through revisions**
-```python
-ds = store.my_dataset
-for df in ds.revisions:
-  do_something(df)
+### Sort values
+
+[`DataFrame.sort_values`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html)
+
+```yaml
+operations:
+  - sort_values:
+      by:
+        - column1
+        - column2
+      ascending: false
 ```
 
-*Pro tip* you can go crazy and use this mechanism to store & retrieve *any*
-object that is serializable via
-[pickle](https://docs.python.org/3/library/pickle.html)
+### De-duplicate
 
-## cli
+[`DataFrame.drop_duplicates`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.drop_duplicates.html)
 
-```bash
-usage: runpandarun [-h] [--loglevel LOGLEVEL] {update,print,publish} ...
+when using a subset of columns, use in conjunction with `sort_values` to make sure to keep the right records
 
-positional arguments:
-  {update,print,publish}
-                        commands help: run `runpandarun <command> -h`
+```yaml
+operations:
+  - drop_duplicates:
+      subset:
+        - column1
+        - column2
+      keep: last
+```
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --loglevel LOGLEVEL
+### Compute a new column based on existing data
+
+[`DataFrame.assign`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.assign.html)
+
+```yaml
+operations:
+  - handler: DataFrame.assign
+    options:
+      city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
+```
+
+## save eval
+
+Ok wait, you are executing arbitrary python code in the yaml specs?
+
+Not really, there is a strict allow list of possible modules that can be used. See [runpandarun.util.safe_eval](https://github.com/investigativedata/runpandarun/blob/develop/runpandarun/util.py)
+
+This includes:
+- any pandas or numpy modules
+- [normality](https://github.com/pudo/normality/)
+- [fingerprints](https://github.com/alephdata/fingerprints)
+
+So, this would, of course, **NOT WORK** ([as tested here](https://github.com/investigativedata/runpandarun/blob/develop/tests/test_playbook.py))
+
+```yaml
+operations:
+  - handler: DataFrame.apply
+    func: "__import__('os').system('rm -rf /')"
 ```
 
 
-## developement
+## development
 
-Install testing requirements:
+Package is managed via [Poetry](https://python-poetry.org/)
 
-    make install
+    git clone https://github.com/investigativedata/runpandarun
+
+Install requirements:
+
+    poetry install --with dev
 
 Test:
 
     make test
+
+## Funding
+
+Since July 2023, this project is part of [investigraph](https://investigraph.dev) and development of this project is funded by
+
+[Media Tech Lab Bayern batch #3](https://github.com/media-tech-lab)
+
+<a href="https://www.media-lab.de/en/programs/media-tech-lab">
+    <img src="https://raw.githubusercontent.com/media-tech-lab/.github/main/assets/mtl-powered-by.png" width="240" title="Media Tech Lab powered by logo">
+</a>

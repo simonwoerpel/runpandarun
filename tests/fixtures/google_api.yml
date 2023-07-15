@@ -1,0 +1,16 @@
+datasets:
+  places:
+    json_url: https://maps.googleapis.com/maps/api/place/findplacefromtext/json
+    request:
+      params:
+        key: ${GOOGLE_APY_KEY}
+        language: de
+        inputtype: textquery
+        fields: formatted_address,name,place_id
+        input: Supermarkt
+    json_normalize:
+      record_path: candidates
+    columns:
+      - formatted_address
+      - name
+      - id: place_id

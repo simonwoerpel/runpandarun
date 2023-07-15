@@ -1,0 +1,33 @@
+read:
+  uri: ./testdata.csv
+  options:
+    skipfooter: 1
+
+operations:
+  - handler: DataFrame.rename
+    options:
+      columns:
+        value: amount
+
+  - handler: Series.str.lower
+    column: state
+
+  - handler: DataFrame.assign
+    options:
+      city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
+
+  - handler: DataFrame.set_index
+    options:
+      keys:
+        - city_id
+
+  - handler: DataFrame.sort_values
+    options:
+      by:
+        - state
+        - city
+
+write:
+  uri: ./testdata_transformed.csv
+  options:
+    index: false

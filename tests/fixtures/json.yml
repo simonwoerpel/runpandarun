@@ -1,0 +1,13 @@
+# json
+in_uri: ./example/testdata.json
+handler:
+  name: read_json
+  kwargs:
+    dtype:
+      integer: str
+columns:
+  - value: integer
+  - state:
+      map: 'lambda x: x.upper()'
+  - date
+dt_index: date

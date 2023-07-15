@@ -1,0 +1,6 @@
+# replace dynamically within uri
+in_uri: https://www.divi.de/images/Dokumente/Tagesdaten_Intensivregister_CSV/DIVI_Intensivregister_{date}_09-15.csv
+request:
+  url_replace:
+    date: '(datetime.now() - timedelta(days=1)).date().isoformat()'
+index: gemeindeschluessel

@@ -1,6 +1,2 @@
-class ConfigError(Exception):
-    pass
-
-
-class FetchError(Exception):
+class SpecError(Exception):
     pass

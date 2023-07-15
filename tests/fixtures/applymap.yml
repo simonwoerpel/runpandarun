@@ -1,0 +1,7 @@
+# pandas applymap
+read:
+  uri: ./testdata.csv
+operations:
+  - handler: DataFrame.applymap
+    options:
+      func: 'lambda x: x.lower() if isinstance(x, str) else x'
