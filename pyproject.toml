@@ -32,6 +32,8 @@ pydantic = "^2.0.3"
 banal = "^1.0.6"
 normality = "^2.4.0"
 fingerprints = "^1.1.0"
+fsspec = "^2023.6.0"
+s3fs = "^2023.6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"
@@ -43,6 +45,7 @@ pre-commit = "^3.3.3"
 flake8 = "^6.0.0"
 ipdb = "^0.13.13"
 pytest-xdist = "^3.3.1"
+moto = "^4.1.12"
 
 [build-system]
 requires = ["poetry-core"]

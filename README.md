@@ -119,7 +119,7 @@ read:
     skiprows: 2
 
 write:
-  uri:                          # output uri, anything that pandas can write to
+  uri: ./data.xlsx              # output uri, anything that pandas can write to
   handler: write_excel          # default: guess by file extension, fallback: write_csv
   options:                      # options for the handler
     index: false

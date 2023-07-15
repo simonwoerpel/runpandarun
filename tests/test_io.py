@@ -1,12 +1,10 @@
 from io import StringIO
 
 import pandas as pd
+from moto import mock_s3
 
 from runpandarun import io
-
-# from tests.util import setup_s3_bucket
-
-# from moto import mock_s3
+from tests.util import setup_s3_bucket
 
 
 def test_io_read(fixtures_path):
@@ -43,14 +41,15 @@ def test_io_read_remote(server):
     assert list(df.columns) == ["state", "city", "amount", "date"]
 
 
-# @mock_s3
-# def test_io_s3():
-#     setup_s3_bucket(with_content=True)
-#     df = io.read_pandas("s3://runpandarun/testdata.csv")
-#     assert len(df) == 10000
-#     assert list(df.columns) == ["state", "city", "amount", "date"]
+@mock_s3
+def test_io_s3():
+    setup_s3_bucket(with_content=True)
+    # https://stackoverflow.com/questions/74897486/how-to-resolve-pandas-read-csv-not-working-for-mock-s3
+    # df = io.read_pandas("s3://runpandarun/testdata.csv")
+    # assert len(df) == 10000
+    # assert list(df.columns) == ["state", "city", "amount", "date"]
 
-#     io.write_pandas("s3://runpandarun/testdata2.csv", df.head())
-#     df = io.read_pandas("s3://runpandarun/testdata2.csv")
-#     assert len(df) == 5/
-#     assert list(df.columns) == ["state", "city", "amount", "date"]
+    # io.write_pandas(df.head(), "s3://runpandarun/testdata2.csv")
+    # df = io.read_pandas("s3://runpandarun/testdata2.csv")
+    # assert len(df) == 5
+    # assert list(df.columns) == ["state", "city", "amount", "date"]
