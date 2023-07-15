@@ -101,27 +101,11 @@ The playbook has three sections:
 
 ### Read and write
 
-Under the hood, `runpandarun` uses [smart_open](https://github.com/RaRe-Technologies/smart_open), so additionally to `stdin` / `stdout`, the input and output locations can be anything that `smart_open` can read and write to, like:
+`pandas` can read and write from many local and remote sources and targets.
 
-```
-s3://my_bucket/data.csv
-gs://my_bucket/data.csv
-azure://my_bucket/data.csv
-hdfs:///path/data.csv
-hdfs://path/data.csv
-webhdfs://host:port/path/data.csv
-./local/path/data.csv
-./local/path/data.csv.gz
-file:///home/user/file.csv
-file:///home/user/file.csv.bz2
-[ssh|scp|sftp]://username@host//path/file.csv
-[ssh|scp|sftp]://username@host/path/file.csv
-[ssh|scp|sftp]://username:password@host/path/file.csv
-```
+More information about handlers and their options: [Pandas IO tools](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html)
 
-And, of course, just `http[s]://...`
-
-So, for example, you could transform a source from `s3` to a `sftp` endpoint:
+For example, you could transform a source from `s3` to a `sftp` endpoint:
 
     runpandarun pandas.yml -i s3://my_bucket/data.csv -o sftp://user@host/data.csv
 
@@ -133,13 +117,13 @@ More information about handlers and their options: [Pandas IO tools](https://pan
 
 ```yaml
 read:
-  uri: s3://my-bucket/data.xls  # input uri, anything that smart_open can read
+  uri: s3://my-bucket/data.xls  # input uri, anything that pandas can read
   handler: read_excel           # default: guess by file extension, fallback: read_csv
   options:                      # options for the handler
     skiprows: 2
 
 write:
-  uri:                          # output uri, anything that smart_open can write to
+  uri:                          # output uri, anything that pandas can write to
   handler: write_excel          # default: guess by file extension, fallback: write_csv
   options:                      # options for the handler
     index: false

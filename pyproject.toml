@@ -27,7 +27,6 @@ runpandarun = "runpandarun.cli:cli"
 python = "^3.10"
 pandas = "2.0.3"
 requests = "2.31.0"
-smart-open = {extras = ["all"], version = "^6.3.0"}
 typer = "0.9.0"
 pydantic = "^2.0.3"
 banal = "^1.0.6"

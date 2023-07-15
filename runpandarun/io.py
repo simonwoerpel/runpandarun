@@ -1,11 +1,9 @@
-import contextlib
 import sys
 from io import BytesIO, StringIO
-from typing import Any, Literal, TypeVar
+from typing import Any, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, field_validator
-from smart_open import open
 
 from .util import PathLike
 
@@ -44,50 +42,35 @@ class WriteHandler(Handler):
 
     def handle(self, df: pd.DataFrame, io: IO | str | None = None) -> None:
         io = io or self.uri
-        return write_pandas(io, df, self.handler, **self.options)
+        return write_pandas(df, io, self.handler, **self.options)
 
 
 def read_pandas(
-    uri: PathLike | IO,
+    io: PathLike | IO,
     handler: str | None = "read_csv",
     mode: str | None = "rb",
     **kwargs
 ) -> pd.DataFrame:
     handler = getattr(pd, handler)
-    with smart_open(uri, sys.stdin.buffer, mode=mode) as io:
-        return handler(io, **kwargs)
+    if io == "-":
+        io = sys.stdin.buffer
+    res = handler(io, **kwargs)
+    if hasattr(io, "close"):
+        io.close()
+    return res
 
 
 def write_pandas(
-    uri: PathLike | IO,
     df: pd.DataFrame,
+    io: PathLike | IO,
     handler: str | None = "to_csv",
     mode: str | None = "wb",
     **kwargs
 ) -> None:
     handler = getattr(df, handler)
-    with smart_open(uri, sys.stdout.buffer, mode=mode) as io:
-        return handler(io, **kwargs)
-
-
-@contextlib.contextmanager
-def smart_open(
-    uri: PathLike | IO | None = None,
-    sys_io: Literal[sys.stdin.buffer, sys.stdout.buffer] | None = sys.stdin,
-    **kwargs
-):
-    """
-    smart_open plus stdin/stdout
-    """
-    if isinstance(uri, (StringIO, BytesIO)):
-        fh = uri
-    elif uri and uri != "-":
-        fh = open(uri, **kwargs)
-    else:
-        fh = sys_io
-
-    try:
-        yield fh
-    finally:
-        if fh not in (sys.stdout.buffer, sys.stdin.buffer):
-            fh.close()
+    if io == "-":
+        io = sys.stdout.buffer
+    res = handler(io, **kwargs)
+    if hasattr(io, "close"):
+        io.close()
+    return res

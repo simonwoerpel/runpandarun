@@ -2,13 +2,13 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, TypeAlias
+from urllib.parse import urlparse
 
 import banal
 import fingerprints
 import normality
 import numpy as np
 import pandas as pd
-from smart_open import parse_uri
 
 PathLike: TypeAlias = str | os.PathLike[str]
 
@@ -54,9 +54,9 @@ def expandvars(data: Any) -> dict[str, Any]:
 
 
 def absolute_path(path: PathLike, base: PathLike) -> PathLike | str:
-    if path == "-" or parse_uri(str(path)).scheme != "file":
+    if path == "-" or urlparse(str(path)).scheme:
         return path
-    return os.path.normpath((Path(base).parent / Path(path)).absolute())
+    return os.path.normpath((Path(base).parent / Path(path)).absolute().as_uri())
 
 
 def getattr_by_path(thing: Any, path: str) -> Any:

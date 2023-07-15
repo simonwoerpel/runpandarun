@@ -1,5 +1,7 @@
 from io import StringIO
 
+import pandas as pd
+
 from runpandarun import io
 
 # from tests.util import setup_s3_bucket
@@ -24,11 +26,14 @@ def test_io_read(fixtures_path):
     assert isinstance(df["integer"][0], str)
 
 
-def test_io_write(fixtures_path):
+def test_io_write(fixtures_path, tmp_path):
     df = io.read_pandas(fixtures_path / "testdata.csv")
+    io.write_pandas(df, tmp_path / "testdata.csv")
+    df_out = pd.read_csv(tmp_path / "testdata.csv")
+    assert len(df) == len(df_out)
     out = StringIO()
     assert not out.closed
-    io.write_pandas(out, df.head())
+    io.write_pandas(df.head(), out)
     assert out.closed
 
 
