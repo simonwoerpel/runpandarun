@@ -3,7 +3,8 @@ from io import BytesIO, StringIO
 from typing import Any, TypeVar
 
 import pandas as pd
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
+from pydantic import validator as field_validator
 
 from .util import PathLike
 

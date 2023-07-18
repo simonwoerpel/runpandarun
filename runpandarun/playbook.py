@@ -2,7 +2,8 @@ from typing import Any, TypeVar
 
 import yaml
 from pandas import DataFrame, Series
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
+from pydantic import validator as field_validator
 
 from .exceptions import SpecError
 from .io import ReadHandler, WriteHandler
