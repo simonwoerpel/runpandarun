@@ -67,4 +67,4 @@ repos:
       - id: poetry-lock
         args: ["--no-update"]
       - id: poetry-export
-        args: ["--dev", "-f", "requirements.txt", "-o", "requirements.txt"]
+        args: ["--with", "dev", "-f", "requirements.txt", "-o", "requirements.txt"]
