@@ -2,6 +2,8 @@ import sys
 from io import BytesIO, StringIO
 from typing import Any, TypeVar
 
+import fsspec
+import orjson
 import pandas as pd
 from pydantic import BaseModel
 from pydantic import validator as field_validator
@@ -52,9 +54,11 @@ def read_pandas(
     mode: str | None = "rb",
     **kwargs
 ) -> pd.DataFrame:
-    handler = getattr(pd, handler)
     if io == "-":
         io = sys.stdin.buffer
+    if handler == "json_normalize":
+        io = read_json(io)
+    handler = getattr(pd, handler)
     res = handler(io, **kwargs)
     if hasattr(io, "close"):
         io.close()
@@ -75,3 +79,9 @@ def write_pandas(
     if hasattr(io, "close"):
         io.close()
     return res
+
+
+def read_json(io: PathLike | IO) -> Any:
+    with fsspec.open(io) as f:
+        data = f.read()
+    return orjson.loads(data)

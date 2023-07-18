@@ -23,6 +23,14 @@ def test_io_read(fixtures_path):
     )
     assert isinstance(df["integer"][0], str)
 
+    df = io.read_pandas(
+        fixtures_path / "lobbyregister.json",
+        handler="json_normalize",
+        record_path="results",
+    )
+    assert len(df) == 17
+    assert "registerNumber" in df.columns
+
 
 def test_io_write(fixtures_path, tmp_path):
     df = io.read_pandas(fixtures_path / "testdata.csv")
@@ -39,6 +47,14 @@ def test_io_read_remote(server):
     df = io.read_pandas(server % "testdata.csv")
     assert len(df) == 10000
     assert list(df.columns) == ["state", "city", "amount", "date"]
+
+    df = io.read_pandas(
+        server % "lobbyregister.json",
+        handler="json_normalize",
+        record_path="results",
+    )
+    assert len(df) == 17
+    assert "registerNumber" in df.columns
 
 
 @mock_s3

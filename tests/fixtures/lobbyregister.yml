@@ -1,0 +1,5 @@
+read:
+  handler: json_normalize
+  uri: ./lobbyregister.json
+  options:
+    record_path: results

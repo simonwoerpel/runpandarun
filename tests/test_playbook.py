@@ -25,3 +25,10 @@ def test_playbook(fixtures_path):
     df = play.run(df)
     assert len(df) == 10000
     assert df.index.name == "city_id"
+
+
+def test_playbook_json(fixtures_path):
+    play = Playbook.from_yaml(fixtures_path / "lobbyregister.yml")
+    df = play.read.handle()
+    assert len(df) == 17
+    assert "registerNumber" in df.columns

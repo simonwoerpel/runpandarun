@@ -56,7 +56,7 @@ def expandvars(data: Any) -> dict[str, Any]:
 def absolute_path(path: PathLike, base: PathLike) -> PathLike | str:
     if path == "-" or urlparse(str(path)).scheme:
         return path
-    return os.path.normpath((Path(base).parent / Path(path)).absolute().as_uri())
+    return Path(os.path.normpath((Path(base).parent / Path(path)).absolute())).as_uri()
 
 
 def getattr_by_path(thing: Any, path: str) -> Any:
