@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, TypeVar
 
 import yaml
@@ -69,11 +70,12 @@ class Playbook(ExpandMixin, BaseModel):
 
     @classmethod
     def from_yaml(cls, path: PathLike) -> P:
+        path = Path(path)
         with open(path) as fh:
             data = yaml.safe_load(fh)
         play = cls(**data)
-        play.read.uri = absolute_path(play.read.uri, path)
-        play.write.uri = absolute_path(play.write.uri, path)
+        play.read.uri = absolute_path(play.read.uri, path.parent)
+        play.write.uri = absolute_path(play.write.uri, path.parent)
         return play
 
     @classmethod

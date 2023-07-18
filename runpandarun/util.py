@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta
+from functools import cache
 from pathlib import Path
 from typing import Any, TypeAlias
 from urllib.parse import urlparse
@@ -10,7 +11,7 @@ import normality
 import numpy as np
 import pandas as pd
 
-PathLike: TypeAlias = str | os.PathLike[str]
+PathLike: TypeAlias = str | os.PathLike[str] | Path
 
 
 def safe_eval(value):
@@ -53,10 +54,17 @@ def expandvars(data: Any) -> dict[str, Any]:
     return data
 
 
-def absolute_path(path: PathLike, base: PathLike) -> PathLike | str:
+@cache
+def absolute_path(
+    path: PathLike, base: PathLike, py_module: bool | None = False
+) -> PathLike | str:
     if path == "-" or urlparse(str(path)).scheme:
         return path
-    return Path(os.path.normpath((Path(base).parent / Path(path)).absolute())).as_uri()
+    path = (Path(base) / Path(path)).absolute()
+    if py_module:
+        path, rest = str(path).rsplit(":", 1)
+        return Path(path).as_uri() + f":{rest}"
+    return path.as_uri()
 
 
 def getattr_by_path(thing: Any, path: str) -> Any:
