@@ -12,7 +12,7 @@ A simple interface written in python for reproducible i/o workflows around tabul
 
 **NOTICE**
 
-As of july 2023, this package only handles pandas transform logic, no data warehousing anymore.  See [archived version](https://github.com/simonwoerpel/runpandarun)
+As of july 2023, this package only handles pandas transform logic, no data warehousing anymore.  See [archived version](https://github.com/simonwoerpel/runpandarun/tree/master)
 
 ## Quickstart
 
