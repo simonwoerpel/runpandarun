@@ -1,12 +1,14 @@
+from pathlib import Path
 from typing import Any, TypeVar
 
 import yaml
 from pandas import DataFrame, Series
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
+from pydantic import validator as field_validator
 
 from .exceptions import SpecError
 from .io import ReadHandler, WriteHandler
-from .util import PathLike, absolute_path, expandvars, getattr_by_path, safe_eval
+from .util import PathLike, absolute_path_uri, expandvars, getattr_by_path, safe_eval
 
 P = TypeVar("P", bound="Playbook")
 
@@ -68,11 +70,12 @@ class Playbook(ExpandMixin, BaseModel):
 
     @classmethod
     def from_yaml(cls, path: PathLike) -> P:
+        path = Path(path)
         with open(path) as fh:
             data = yaml.safe_load(fh)
         play = cls(**data)
-        play.read.uri = absolute_path(play.read.uri, path)
-        play.write.uri = absolute_path(play.write.uri, path)
+        play.read.uri = absolute_path_uri(play.read.uri, path.parent)
+        play.write.uri = absolute_path_uri(play.write.uri, path.parent)
         return play
 
     @classmethod

@@ -1,3 +1,4 @@
+import mimetypes
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -9,8 +10,9 @@ import fingerprints
 import normality
 import numpy as np
 import pandas as pd
+from pantomime import normalize_mimetype
 
-PathLike: TypeAlias = str | os.PathLike[str]
+PathLike: TypeAlias = str | os.PathLike[str] | Path
 
 
 def safe_eval(value):
@@ -53,10 +55,18 @@ def expandvars(data: Any) -> dict[str, Any]:
     return data
 
 
-def absolute_path(path: PathLike, base: PathLike) -> PathLike | str:
-    if path == "-" or urlparse(str(path)).scheme:
+def absolute_path(path: PathLike, base: PathLike | None = "") -> PathLike:
+    scheme = urlparse(str(path)).scheme
+    if path == "-" or scheme:
         return path
-    return os.path.normpath((Path(base).parent / Path(path)).absolute().as_uri())
+    return (Path(base) / Path(path)).absolute()
+
+
+def absolute_path_uri(path: PathLike, base: PathLike | None = "") -> str:
+    path = absolute_path(path, base)
+    if isinstance(path, Path):
+        return path.as_uri()
+    return path
 
 
 def getattr_by_path(thing: Any, path: str) -> Any:
@@ -64,3 +74,8 @@ def getattr_by_path(thing: Any, path: str) -> Any:
     for p in path.split("."):
         thing = getattr(thing, p)
     return thing
+
+
+def guess_mimetype(path: PathLike) -> str:
+    mimetype, _ = mimetypes.guess_type(path)
+    return normalize_mimetype(mimetype)
