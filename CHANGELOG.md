@@ -1,6 +1,12 @@
-# changelog
+# runpandarun
 
-## 0.2.0 (2023-07-14) BREAKING CHANGES
+## CHANGELOG
+
+### 0.2.4 (2023-07-19)
+
+- Add sql support via [sqlalchemy](https://www.sqlalchemy.org/)
+
+### 0.2.0 (2023-07-14) BREAKING CHANGES
 
 This tool was archived, but now re-activated to be used as a plugin in [investigraph](https://github.com/investigativedata/investigraph).
 
@@ -8,17 +14,21 @@ Therefore all the data fetching & storing logic is dropped from this library, on
 
 Refer to the `README.md` of the current version to see what this library (still) can do and what not.
 
-## 0.1.4
+## Prior changelog (2020)
+
+[These changes survived in the archived master branch](https://github.com/simonwoerpel/runpandarun/tree/master)
+
+### 0.1.4
 
 - Add `url_replace` feature for dynamically url rewriting
 
-## 0.1.3
+### 0.1.3
 
 - Add option to resample paginated sources by download date format
 - Small bugfixes
 
 
-## 0.1.2
+### 0.1.2
 
 - Add pagination by offset logic
 - Allow lambda functions as strings in yaml for column transformation and df operations
@@ -26,6 +36,6 @@ Refer to the `README.md` of the current version to see what this library (still)
 - Small bugfixes
 
 
-## 0.1.1
+### 0.1.1
 
 - first release with basic functionality

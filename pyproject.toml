@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "runpandarun"
-version = "0.2.3"
+version = "0.2.4"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
@@ -37,6 +37,7 @@ s3fs = "^2023.6.0"
 orjson = "^3.9.2"
 pantomime = "^0.6.0"
 openpyxl = "^3.1.2"
+sqlalchemy = "<2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"

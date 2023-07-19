@@ -1,17 +1,19 @@
-import os
+import pytest
+from pydantic import ValidationError
 
-from runpandarun import Playbook
+from runpandarun.exceptions import SpecError
+from runpandarun.playbook import Operation, Playbook
 
 
-def test_spec_initialization(fixtures_path):
+def test_spec_initialization(monkeypatch, fixtures_path):
     # empty doesn't fail and has some defaults
     play = Playbook()
     assert play.read.uri == "-"
     assert play.read.handler is None
-    assert play.read.get_handler_name() == "read_csv"
+    assert play.read.get_name() == "read_csv"
     assert play.write.uri == "-"
     assert play.write.handler is None
-    assert play.write.get_handler_name() == "to_csv"
+    assert play.write.get_name() == "to_csv"
     assert play.operations == []
 
     # pydantic way
@@ -33,9 +35,24 @@ def test_spec_initialization(fixtures_path):
           func: ${A_SECRET_TRANSFORMATION}
     """
 
-    os.environ["SECRET_LOCATION"] = "sftp://user:password/data.csv"
-    os.environ["A_SECRET_TRANSFORMATION"] = "str.lower"
+    monkeypatch.setenv("SECRET_LOCATION", "sftp://user:password/data.csv")
+    monkeypatch.setenv("A_SECRET_TRANSFORMATION", "str.lower")
 
     play = Playbook.from_string(config)
     assert play.read.uri == "sftp://user:password/data.csv"
     assert play.operations[0].options["func"] == "str.lower"
+
+
+def test_spec_invalid():
+    with pytest.raises(SpecError):
+        Operation(handler="foo")
+    with pytest.raises(SpecError):
+        Operation(handler="foo.bar")
+    with pytest.raises(SpecError):
+        Operation(handler="DataFrame.foo")
+    with pytest.raises(SpecError):  # missing column
+        Operation(handler="Series.map")
+    with pytest.raises(SpecError):
+        Operation()
+    with pytest.raises(ValidationError):
+        Operation(handler="DataFrame.applymap", foo="bar")

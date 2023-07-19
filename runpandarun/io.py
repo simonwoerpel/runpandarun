@@ -1,6 +1,7 @@
 import sys
 from io import BytesIO, StringIO
 from typing import Any, TypeVar
+from urllib.parse import urlparse
 
 import fsspec
 import orjson
@@ -9,6 +10,7 @@ from pantomime import types
 from pydantic import BaseModel
 from pydantic import validator as field_validator
 
+from .exceptions import SpecError
 from .util import PathLike, guess_mimetype
 
 IO = TypeVar("IO", bound=StringIO | BytesIO)
@@ -27,7 +29,7 @@ class Handler(BaseModel):
                 raise ValueError("Unknown handler: `%s`" % v)
         return v
 
-    def get_handler_name(self) -> str:
+    def get_name(self) -> str:
         if self.handler is not None:
             return self.handler
         if self.uri is not None and self.uri != "-":
@@ -43,7 +45,7 @@ class ReadHandler(Handler):
 
     def handle(self, io: IO | str | None = None) -> pd.DataFrame:
         io = io or self.uri
-        return read_pandas(io, self.get_handler_name(), **self.options)
+        return read_pandas(io, self.get_name(), **self.options)
 
 
 class WriteHandler(Handler):
@@ -51,7 +53,7 @@ class WriteHandler(Handler):
 
     def handle(self, df: pd.DataFrame, io: IO | str | None = None) -> None:
         io = io or self.uri
-        return write_pandas(df, io, self.get_handler_name(), **self.options)
+        return write_pandas(df, io, self.get_name(), **self.options)
 
 
 def read_pandas(
@@ -62,12 +64,9 @@ def read_pandas(
 ) -> pd.DataFrame:
     if io == "-":
         io = sys.stdin.buffer
-    if handler == "json_normalize":
-        io = read_json(io)
+    arg, kwargs = get_pandas_kwargs(handler, io, **kwargs)
     handler = getattr(pd, handler)
-    res = handler(io, **kwargs)
-    if hasattr(io, "close"):
-        io.close()
+    res = handler(arg, **kwargs)
     return res
 
 
@@ -78,12 +77,11 @@ def write_pandas(
     mode: str | None = "wb",
     **kwargs,
 ) -> None:
-    handler = getattr(df, handler)
     if io == "-":
         io = sys.stdout.buffer
-    res = handler(io, **kwargs)
-    if hasattr(io, "close"):
-        io.close()
+    arg, kwargs = get_pandas_kwargs(handler, io, **kwargs)
+    handler = getattr(df, handler)
+    res = handler(arg, **kwargs)
     return res
 
 
@@ -105,4 +103,22 @@ def guess_handler(path: PathLike) -> str:
         return "xml"
     if mimetype == types.HTML:
         return "html"
+    path = urlparse(path)
+    if "sql" in path.scheme:
+        return "sql"
     raise NotImplementedError(f"Please specify pandas handler for type `{mimetype}`")
+
+
+def get_pandas_kwargs(handler: str, io: IO, **kwargs) -> tuple[Any, dict[str, Any]]:
+    """
+    Try to align our Spec with `uri` param to pandas api.
+    """
+    arg = io
+    if handler == "json_normalize":
+        arg = read_json(io)
+    elif "sql" in handler:
+        arg = kwargs.pop("sql", None)
+        if not isinstance(arg, str):
+            raise SpecError("Provide `sql` parameter: A table name or SQL query")
+        kwargs["con"] = io
+    return arg, kwargs
