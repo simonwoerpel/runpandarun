@@ -7,9 +7,11 @@ def test_spec_initialization(fixtures_path):
     # empty doesn't fail and has some defaults
     play = Playbook()
     assert play.read.uri == "-"
-    assert play.read.handler == "read_csv"
+    assert play.read.handler is None
+    assert play.read.get_handler_name() == "read_csv"
     assert play.write.uri == "-"
-    assert play.write.handler == "to_csv"
+    assert play.write.handler is None
+    assert play.write.get_handler_name() == "to_csv"
     assert play.operations == []
 
     # pydantic way

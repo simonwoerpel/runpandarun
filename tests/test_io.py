@@ -1,6 +1,7 @@
 from io import StringIO
 
 import pandas as pd
+import pytest
 from moto import mock_s3
 
 from runpandarun import io
@@ -19,7 +20,7 @@ def test_io_read(fixtures_path):
     df = io.read_pandas(
         fixtures_path / "testdata.json",
         handler="read_json",
-        **{"dtype": {"integer": str}}
+        **{"dtype": {"integer": str}},
     )
     assert isinstance(df["integer"][0], str)
 
@@ -69,3 +70,22 @@ def test_io_s3():
     # df = io.read_pandas("s3://runpandarun/testdata2.csv")
     # assert len(df) == 5
     # assert list(df.columns) == ["state", "city", "amount", "date"]
+
+
+def test_io_guess_handler():
+    handlers = {
+        "xls": "excel",
+        "xlsx": "excel",
+        "csv": "csv",
+        "html": "html",
+        "json": "json",
+        "xml": "xml",
+    }
+    for ext, h in handlers.items():
+        assert io.guess_handler(f"/foo/bar/data.{ext}") == h
+
+    with pytest.raises(NotImplementedError):
+        io.guess_handler("")
+
+    with pytest.raises(NotImplementedError):
+        io.guess_handler("data.sql")

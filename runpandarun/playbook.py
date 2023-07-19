@@ -8,7 +8,7 @@ from pydantic import validator as field_validator
 
 from .exceptions import SpecError
 from .io import ReadHandler, WriteHandler
-from .util import PathLike, absolute_path, expandvars, getattr_by_path, safe_eval
+from .util import PathLike, absolute_path_uri, expandvars, getattr_by_path, safe_eval
 
 P = TypeVar("P", bound="Playbook")
 
@@ -74,8 +74,8 @@ class Playbook(ExpandMixin, BaseModel):
         with open(path) as fh:
             data = yaml.safe_load(fh)
         play = cls(**data)
-        play.read.uri = absolute_path(play.read.uri, path.parent)
-        play.write.uri = absolute_path(play.write.uri, path.parent)
+        play.read.uri = absolute_path_uri(play.read.uri, path.parent)
+        play.write.uri = absolute_path_uri(play.write.uri, path.parent)
         return play
 
     @classmethod
