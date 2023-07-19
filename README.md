@@ -289,6 +289,17 @@ operations:
       city_id: "lambda x: x['state'] + '-' + x['city'].map(normality.slugify)"
 ```
 
+### SQL
+
+[Pandas SQL io](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_sql.html#pandas.read_sql)
+
+```yaml
+read:
+  uri: postgresql://user:password@host/database
+  options:
+    sql: "SELECT * FROM my_table WHERE category = 'A'"
+```
+
 ## save eval
 
 Ok wait, you are executing arbitrary python code in the yaml specs?

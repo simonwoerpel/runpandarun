@@ -3,8 +3,10 @@ import sys
 import time
 from pathlib import Path
 
+import pandas as pd
 import pytest
 import requests
+from sqlalchemy import create_engine
 
 FIXTURES_PATH = (Path(__file__).parent / "fixtures").absolute()
 
@@ -61,3 +63,11 @@ def fixtures_path():
 @pytest.fixture(scope="module")
 def server():
     return "http://localhost:8000/%s"
+
+
+@pytest.fixture(scope="function")
+def con(tmp_path):
+    con = f"sqlite:///{tmp_path}/data.db"
+    df = pd.read_csv(FIXTURES_PATH / "testdata.csv")
+    df.to_sql("test_table", create_engine(con))
+    return con

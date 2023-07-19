@@ -8,10 +8,10 @@ def test_spec_initialization(fixtures_path):
     play = Playbook()
     assert play.read.uri == "-"
     assert play.read.handler is None
-    assert play.read.get_handler_name() == "read_csv"
+    assert play.read.get_name() == "read_csv"
     assert play.write.uri == "-"
     assert play.write.handler is None
-    assert play.write.get_handler_name() == "to_csv"
+    assert play.write.get_name() == "to_csv"
     assert play.operations == []
 
     # pydantic way
