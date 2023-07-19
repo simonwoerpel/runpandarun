@@ -28,6 +28,9 @@ class Operation(ExpandMixin, BaseModel):
     options: dict[str, Any] | None = {}
     column: str | None = None
 
+    class Config:
+        extra = "forbid"
+
     @root_validator
     def validate_handler(cls, values):
         try:
@@ -63,6 +66,9 @@ class Playbook(ExpandMixin, BaseModel):
     read: ReadHandler | None = ReadHandler()
     operations: list[Operation] | None = []
     write: WriteHandler | None = WriteHandler()
+
+    class Config:
+        extra = "forbid"
 
     def run(self, df: DataFrame | None = None, write: bool | None = False) -> DataFrame:
         if df is None:
