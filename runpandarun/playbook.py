@@ -51,14 +51,15 @@ class Operation(ExpandMixin, BaseModel):
         return values
 
     def apply(self, df: DataFrame) -> DataFrame:
-        options = {k: safe_eval(v) for k, v in self.options.items()}
+        if "func" in self.options:
+            self.options["func"] = safe_eval(self.options["func"])
         _, func = self.handler.split(".", 1)
         if self.column:
             func = getattr_by_path(df[self.column], func)
-            df[self.column] = func(**options)
+            df[self.column] = func(**self.options)
         else:
             func = getattr_by_path(df, func)
-            df = func(**options)
+            df = func(**self.options)
         return df
 
 
