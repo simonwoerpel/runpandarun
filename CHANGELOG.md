@@ -1,10 +1,12 @@
-# changelog
+# runpandarun
 
-## 0.2.4 (2023-07-19)
+## CHANGELOG
+
+### 0.2.4 (2023-07-19)
 
 - Add sql support via [sqlalchemy](https://www.sqlalchemy.org/)
 
-## 0.2.0 (2023-07-14) BREAKING CHANGES
+### 0.2.0 (2023-07-14) BREAKING CHANGES
 
 This tool was archived, but now re-activated to be used as a plugin in [investigraph](https://github.com/investigativedata/investigraph).
 
