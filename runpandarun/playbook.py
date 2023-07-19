@@ -3,8 +3,7 @@ from typing import Any, TypeVar
 
 import yaml
 from pandas import DataFrame, Series
-from pydantic import BaseModel
-from pydantic import validator as field_validator
+from pydantic import BaseModel, root_validator
 
 from .exceptions import SpecError
 from .io import ReadHandler, WriteHandler
@@ -25,20 +24,28 @@ MODULES = {
 
 
 class Operation(ExpandMixin, BaseModel):
-    options: dict[str, Any] | None = {}
     handler: str
+    options: dict[str, Any] | None = {}
     column: str | None = None
 
-    @field_validator("handler")
-    def validate_handler(cls, v):
-        module, func = v.split(".", 1)
+    @root_validator
+    def validate_handler(cls, values):
+        try:
+            handler = values["handler"]
+            module, func = handler.split(".", 1)
+        except Exception as e:
+            raise SpecError(f"Invalid handler provided: `{e}`")
         if module not in ("DataFrame", "Series"):
             raise SpecError(f"`{module}` is not any of `DataFrame` or `Series`")
+        if module == "Series" and values.get("column") is None:
+            raise SpecError(
+                f"Provide a `column` parameter when using the `{handler}` handler."
+            )
         try:
             getattr_by_path(MODULES[module], func)
         except Exception as e:
-            raise SpecError(f"Could not load function `{v}`: {e}")
-        return v
+            raise SpecError(f"Could not load function `{handler}`: {e}")
+        return values
 
     def apply(self, df: DataFrame) -> DataFrame:
         options = {k: safe_eval(v) for k, v in self.options.items()}

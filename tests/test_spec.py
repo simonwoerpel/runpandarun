@@ -1,9 +1,10 @@
-import os
+import pytest
 
-from runpandarun import Playbook
+from runpandarun.exceptions import SpecError
+from runpandarun.playbook import Operation, Playbook
 
 
-def test_spec_initialization(fixtures_path):
+def test_spec_initialization(monkeypatch, fixtures_path):
     # empty doesn't fail and has some defaults
     play = Playbook()
     assert play.read.uri == "-"
@@ -33,9 +34,20 @@ def test_spec_initialization(fixtures_path):
           func: ${A_SECRET_TRANSFORMATION}
     """
 
-    os.environ["SECRET_LOCATION"] = "sftp://user:password/data.csv"
-    os.environ["A_SECRET_TRANSFORMATION"] = "str.lower"
+    monkeypatch.setenv("SECRET_LOCATION", "sftp://user:password/data.csv")
+    monkeypatch.setenv("A_SECRET_TRANSFORMATION", "str.lower")
 
     play = Playbook.from_string(config)
     assert play.read.uri == "sftp://user:password/data.csv"
     assert play.operations[0].options["func"] == "str.lower"
+
+
+def test_spec_invalid():
+    with pytest.raises(SpecError):
+        Operation(handler="foo")
+    with pytest.raises(SpecError):
+        Operation(handler="foo.bar")
+    with pytest.raises(SpecError):
+        Operation(handler="DataFrame.foo")
+    with pytest.raises(SpecError):  # missing column
+        Operation(handler="Series.map")

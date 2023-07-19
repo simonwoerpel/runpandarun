@@ -3,6 +3,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 from moto import mock_s3
+from pydantic import ValidationError
 
 from runpandarun import io
 from runpandarun.exceptions import SpecError
@@ -116,3 +117,8 @@ def test_io_sql(con):
     # missing sql query
     with pytest.raises(SpecError):
         io.read_pandas(con, "read_sql")
+
+
+def test_io_invalid():
+    with pytest.raises(ValidationError):
+        io.ReadHandler(uri="-", handler="foo")
