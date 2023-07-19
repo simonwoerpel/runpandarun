@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from runpandarun.exceptions import SpecError
 from runpandarun.playbook import Operation, Playbook
@@ -51,3 +52,7 @@ def test_spec_invalid():
         Operation(handler="DataFrame.foo")
     with pytest.raises(SpecError):  # missing column
         Operation(handler="Series.map")
+    with pytest.raises(SpecError):
+        Operation()
+    with pytest.raises(ValidationError):
+        Operation(handler="DataFrame.applymap", foo="bar")
