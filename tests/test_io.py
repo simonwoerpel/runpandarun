@@ -83,17 +83,21 @@ def test_io_guess_handler():
         "xml": "xml",
     }
     for ext, h in handlers.items():
-        assert io.guess_handler(f"/foo/bar/data.{ext}") == h
+        assert io.guess_handler_from_uri(f"/foo/bar/data.{ext}") == h
 
     with pytest.raises(NotImplementedError):
-        io.guess_handler("")
+        io.guess_handler_from_uri("")
 
     with pytest.raises(NotImplementedError):
-        io.guess_handler("data.sql")
+        io.guess_handler_from_uri("data.sql")
+
+    assert io.guess_handler_from_uri("sqlite:///") == "sql"
+    assert io.guess_handler_from_uri("postgresql:///") == "sql"
+    assert io.guess_handler_from_uri("mysql:///") == "sql"
 
 
 def test_io_sql(con):
-    assert io.guess_handler(con) == "sql"
+    assert io.guess_handler_from_uri(con) == "sql"
     df = io.read_pandas(con, handler="read_sql", sql="test_table")
     assert len(df) == 10000
     assert list(df.columns) == ["index", "state", "city", "amount", "date"]

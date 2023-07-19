@@ -33,7 +33,7 @@ class Handler(BaseModel):
         if self.handler is not None:
             return self.handler
         if self.uri is not None and self.uri != "-":
-            handler = guess_handler(self.uri)
+            handler = guess_handler_from_uri(self.uri)
             if "write" in self.__class__.__name__.lower():
                 return f"to_{handler}"
             return f"read_{handler}"
@@ -91,8 +91,7 @@ def read_json(io: PathLike | IO) -> Any:
     return orjson.loads(data)
 
 
-def guess_handler(path: PathLike) -> str:
-    mimetype = guess_mimetype(path)
+def guess_handler_from_mimetype(mimetype: str) -> str:
     if mimetype == types.CSV:
         return "csv"
     if mimetype in (types.EXCEL, types.XLS, types.XLSX):
@@ -103,10 +102,20 @@ def guess_handler(path: PathLike) -> str:
         return "xml"
     if mimetype == types.HTML:
         return "html"
-    path = urlparse(path)
-    if "sql" in path.scheme:
-        return "sql"
     raise NotImplementedError(f"Please specify pandas handler for type `{mimetype}`")
+
+
+def guess_handler_from_uri(uri: PathLike) -> str:
+    mimetype = guess_mimetype(uri)
+    try:
+        return guess_handler_from_mimetype(mimetype)
+    except NotImplementedError:
+        uri = urlparse(uri)
+        if "sql" in uri.scheme:
+            return "sql"
+        raise NotImplementedError(
+            f"Please specify pandas handler for type `{mimetype}` ({uri})"
+        )
 
 
 def get_pandas_kwargs(handler: str, io: IO, **kwargs) -> tuple[Any, dict[str, Any]]:
