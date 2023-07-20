@@ -98,7 +98,7 @@ def guess_handler_from_mimetype(mimetype: str) -> str:
         return "excel"
     if mimetype == types.JSON:
         return "json"
-    if mimetype in (types.XML, "application/xml"):  # FIXME pantomime
+    if mimetype == types.XML:
         return "xml"
     if mimetype == types.HTML:
         return "html"
