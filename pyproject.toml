@@ -37,7 +37,7 @@ s3fs = "^2023.6.0"
 orjson = "^3.9.2"
 pantomime = "^0.6.0"
 openpyxl = "^3.1.2"
-sqlalchemy = "<2"
+sqlalchemy = "<3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"
