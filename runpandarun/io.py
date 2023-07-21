@@ -21,6 +21,9 @@ class Handler(BaseModel):
     uri: str | None = "-"
     handler: str | None = None
 
+    class Config:
+        extra = "forbid"
+
     @field_validator("handler")
     def validate_handler(cls, v):
         if v is not None:

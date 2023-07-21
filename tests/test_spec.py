@@ -2,6 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from runpandarun.exceptions import SpecError
+from runpandarun.io import Handler
 from runpandarun.playbook import Operation, Playbook
 
 
@@ -56,3 +57,5 @@ def test_spec_invalid():
         Operation()
     with pytest.raises(ValidationError):
         Operation(handler="DataFrame.applymap", foo="bar")
+    with pytest.raises(ValidationError):
+        Handler(operations="")
