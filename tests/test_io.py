@@ -39,9 +39,11 @@ def test_io_read(monkeypatch, fixtures_path):
             fh,
             handler="json_normalize",
             record_path="results",
+            max_level=0,
         )
         assert len(df) == 17
         assert "registerNumber" in df.columns
+        assert not any("." in k for k in df.columns)
 
 
 def test_io_write(monkeypatch, fixtures_path, tmp_path):
