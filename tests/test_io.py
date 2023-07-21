@@ -34,6 +34,15 @@ def test_io_read(monkeypatch, fixtures_path):
     assert len(df) == 17
     assert "registerNumber" in df.columns
 
+    with open(fixtures_path / "lobbyregister.json") as fh:
+        df = io.read_pandas(
+            fh,
+            handler="json_normalize",
+            record_path="results",
+        )
+        assert len(df) == 17
+        assert "registerNumber" in df.columns
+
 
 def test_io_write(monkeypatch, fixtures_path, tmp_path):
     df = io.read_pandas(fixtures_path / "testdata.csv")

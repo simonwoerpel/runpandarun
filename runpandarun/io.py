@@ -89,9 +89,10 @@ def write_pandas(
 
 
 def read_json(io: PathLike | IO) -> Any:
+    if hasattr(io, "read"):  # TextIOWrapper
+        return orjson.loads(io.read())
     with fsspec.open(io) as f:
-        data = f.read()
-    return orjson.loads(data)
+        return orjson.loads(f.read())
 
 
 def guess_handler_from_mimetype(mimetype: str) -> str:
