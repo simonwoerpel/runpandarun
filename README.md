@@ -1,7 +1,7 @@
 [![runpandarun on pypi](https://img.shields.io/pypi/v/runpandarun)](https://pypi.org/project/runpandarun/)
 [![Python test and package](https://github.com/simonwoerpel/runpandarun/actions/workflows/python.yml/badge.svg)](https://github.com/simonwoerpel/runpandarun/actions/workflows/python.yml)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
-[![Coverage Status](https://coveralls.io/repos/github/investigativedata/runpandarun/badge.svg?branch=main)](https://coveralls.io/github/investigativedata/runpandarun?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/investigativedata/runpandarun/badge.svg?branch=develop)](https://coveralls.io/github/investigativedata/runpandarun?branch=develop)
 [![MIT License](https://img.shields.io/pypi/l/runpandarun)](./LICENSE)
 
 # Run Panda Run
