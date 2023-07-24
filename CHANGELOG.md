@@ -2,6 +2,10 @@
 
 ## CHANGELOG
 
+### 0.2.5 (2023-07-24)
+
+- Fix `read_json` for already opened str/bytes stream handler
+
 ### 0.2.4 (2023-07-19)
 
 - Add sql support via [sqlalchemy](https://www.sqlalchemy.org/)

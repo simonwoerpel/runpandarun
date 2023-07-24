@@ -21,6 +21,9 @@ class Handler(BaseModel):
     uri: str | None = "-"
     handler: str | None = None
 
+    class Config:
+        extra = "forbid"
+
     @field_validator("handler")
     def validate_handler(cls, v):
         if v is not None:
@@ -33,7 +36,7 @@ class Handler(BaseModel):
         if self.handler is not None:
             return self.handler
         if self.uri is not None and self.uri != "-":
-            handler = guess_handler(self.uri)
+            handler = guess_handler_from_uri(self.uri)
             if "write" in self.__class__.__name__.lower():
                 return f"to_{handler}"
             return f"read_{handler}"
@@ -86,27 +89,37 @@ def write_pandas(
 
 
 def read_json(io: PathLike | IO) -> Any:
+    if hasattr(io, "read"):  # TextIOWrapper
+        return orjson.loads(io.read())
     with fsspec.open(io) as f:
-        data = f.read()
-    return orjson.loads(data)
+        return orjson.loads(f.read())
 
 
-def guess_handler(path: PathLike) -> str:
-    mimetype = guess_mimetype(path)
+def guess_handler_from_mimetype(mimetype: str) -> str:
     if mimetype == types.CSV:
         return "csv"
     if mimetype in (types.EXCEL, types.XLS, types.XLSX):
         return "excel"
     if mimetype == types.JSON:
         return "json"
-    if mimetype in (types.XML, "application/xml"):  # FIXME pantomime
+    if mimetype == types.XML:
         return "xml"
     if mimetype == types.HTML:
         return "html"
-    path = urlparse(path)
-    if "sql" in path.scheme:
-        return "sql"
     raise NotImplementedError(f"Please specify pandas handler for type `{mimetype}`")
+
+
+def guess_handler_from_uri(uri: PathLike) -> str:
+    mimetype = guess_mimetype(uri)
+    try:
+        return guess_handler_from_mimetype(mimetype)
+    except NotImplementedError:
+        uri = urlparse(uri)
+        if "sql" in uri.scheme:
+            return "sql"
+        raise NotImplementedError(
+            f"Please specify pandas handler for type `{mimetype}` ({uri})"
+        )
 
 
 def get_pandas_kwargs(handler: str, io: IO, **kwargs) -> tuple[Any, dict[str, Any]]:
