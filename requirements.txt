@@ -142,9 +142,9 @@ boto3==1.26.161 ; python_version >= "3.10" and python_version < "4.0" \
 botocore==1.29.161 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:a50edd715eb510343e27849f36483804aae4b871590db4d4996aa53368dcac40 \
     --hash=sha256:b906999dd53dda2ef0ef6f7f55fcc81a4b06b9f1c8a9f65c546e0b981f959f5f
-certifi==2023.5.7 ; python_version >= "3.10" and python_version < "4.0" \
-    --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
-    --hash=sha256:c6c2e98f5c7869efca1f8916fed228dd91539f9f1b444c314c06eef02980c716
+certifi==2023.7.22 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:539cc1d13202e33ca466e88b2807e29f4c13049d6d87031a3c110744495cb082 \
+    --hash=sha256:92d6037539857d8206b8f6ae472e8b77db8058fec5937a1ef3f54304089edbb9
 cffi==1.15.1 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:00a9ed42e88df81ffae7a8ab6d9356b371399b91dbdf0c3cb1e84c03a13aceb5 \
     --hash=sha256:03425bdae262c76aad70202debd780501fabeaca237cdfddc008987c0e0f59ef \
@@ -536,9 +536,9 @@ greenlet==2.0.2 ; python_version >= "3.10" and python_version < "4.0" and (platf
     --hash=sha256:eff4eb9b7eb3e4d0cae3d28c283dc16d9bed6b193c2e1ace3ed86ce48ea8df19 \
     --hash=sha256:f82d4d717d8ef19188687aa32b8363e96062911e63ba22a0cff7802a8e58e5f1 \
     --hash=sha256:fc3a569657468b6f3fb60587e48356fe512c1754ca05a564f11366ac9e306526
-identify==2.5.25 ; python_version >= "3.10" and python_version < "4.0" \
-    --hash=sha256:9df2489842707d431b38ce3410ef8df40da5b10a3e28a3fcac1a42523e956409 \
-    --hash=sha256:db4de0e758c0db8f81996816cd2f3f2f8c5c8d49a7fd02f3b4109aac6fd80e29
+identify==2.5.26 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:7243800bce2f58404ed41b7c002e53d4d22bcf3ae1b7900c2d7aefd95394bf7f \
+    --hash=sha256:c22a8ead0d4ca11f1edd6c9418c3220669b3b7533ada0a0ffa6cc0ef85cf9b54
 idna==3.4 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
     --hash=sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2
