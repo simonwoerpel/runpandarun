@@ -1,6 +1,5 @@
 import sys
-from io import BytesIO, StringIO
-from typing import Any, TypeVar
+from typing import Any
 from urllib.parse import urlparse
 
 import fsspec
@@ -11,9 +10,8 @@ from pydantic import BaseModel
 from pydantic import validator as field_validator
 
 from .exceptions import SpecError
-from .util import PathLike, guess_mimetype
-
-IO = TypeVar("IO", bound=StringIO | BytesIO)
+from .types import IO, PathLike
+from .util import guess_mimetype
 
 
 class Handler(BaseModel):

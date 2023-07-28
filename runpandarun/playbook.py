@@ -7,7 +7,8 @@ from pydantic import BaseModel, root_validator
 
 from .exceptions import SpecError
 from .io import ReadHandler, WriteHandler
-from .util import PathLike, absolute_path_uri, expandvars, getattr_by_path, safe_eval
+from .types import PathLike
+from .util import absolute_path_uri, expandvars, getattr_by_path, safe_eval
 
 P = TypeVar("P", bound="Playbook")
 

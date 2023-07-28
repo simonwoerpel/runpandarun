@@ -2,7 +2,7 @@ import mimetypes
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, TypeAlias
+from typing import Any
 from urllib.parse import urlparse
 
 import banal
@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from pantomime import normalize_mimetype
 
-PathLike: TypeAlias = str | os.PathLike[str] | Path
+from .types import PathLike
 
 
 def safe_eval(value):
