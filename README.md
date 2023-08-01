@@ -207,7 +207,8 @@ operations:
         - state
         - city
 
-patch:                                                                                                                 city:
+patch:
+  city:
     options:
       - match: Zarizri
         value: Zar1zr1
