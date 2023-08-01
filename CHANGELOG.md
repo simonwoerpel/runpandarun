@@ -2,6 +2,10 @@
 
 ## CHANGELOG
 
+### 0.3.0 (2023-08-01)
+
+- Add [datapatch](https://github.com/pudo/datapatch)
+
 ### 0.2.5 (2023-07-24)
 
 - Fix `read_json` for already opened str/bytes stream handler

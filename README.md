@@ -10,6 +10,8 @@
 
 A simple interface written in python for reproducible i/o workflows around tabular data via [pandas](https://pandas.pydata.org/) `DataFrame` specified via `yaml` "playbooks".
 
+Apart from any `pandas` function possible that can alter data, also [datapatch](https://github.com/pudo/datapatch) is included for an additional and easier way to patch data.
+
 **NOTICE**
 
 As of july 2023, this package only handles pandas transform logic, no data warehousing anymore.  See [archived version](https://github.com/simonwoerpel/runpandarun/tree/master)
@@ -205,6 +207,12 @@ operations:
         - state
         - city
 
+patch:
+  city:
+    options:
+      - match: Zarizri
+        value: Zar1zr1
+
 write:
   uri: ftp://user:${FTP_PASSWORD}@host/data.csv
   options:
@@ -300,9 +308,37 @@ read:
     sql: "SELECT * FROM my_table WHERE category = 'A'"
 ```
 
+### Patch data
+
+Apart from any `pandas` function possible that can alter data, also [datapatch](https://github.com/pudo/datapatch) is included for an additional and easier way to patch data.
+
+Simply add a `patch` config to the yaml. Refer to the datapatch readme for details.
+
+The patching is applied *after* all the `operations` are applied.
+
+```yaml
+patch:
+  countries:
+    normalize: true
+    lowercase: true
+    options:
+      - match: Frankreich
+        value: France
+      - match:
+          - Northkorea
+          - Nordkorea
+          - Northern Korea
+          - NKorea
+          - DPRK
+        value: North Korea
+      - contains: Britain
+        value: Great Britain
+```
+
+
 ## save eval
 
-Ok wait, you are executing arbitrary python code in the yaml specs?
+**Ok wait, you are executing arbitrary python code in the yaml specs?**
 
 Not really, there is a strict allow list of possible modules that can be used. See [runpandarun.util.safe_eval](https://github.com/investigativedata/runpandarun/blob/develop/runpandarun/util.py)
 

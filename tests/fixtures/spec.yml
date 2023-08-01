@@ -27,6 +27,12 @@ operations:
         - state
         - city
 
+patch:
+  city:
+    options:
+      - match: Zarizri
+        value: Zar1zr1
+
 write:
   uri: ./testdata_transformed.csv
   options:
