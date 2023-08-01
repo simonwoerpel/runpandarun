@@ -212,6 +212,17 @@ tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "babel"
+version = "2.12.1"
+description = "Internationalization utilities"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Babel-2.12.1-py3-none-any.whl", hash = "sha256:b4246fb7677d3b98f501a39d43396d3cafdc8eadb045f4a31be01863f655c610"},
+    {file = "Babel-2.12.1.tar.gz", hash = "sha256:cc2d99999cd01d44420ae725a21c9e3711b3aadc7976d6147f622d8581963455"},
+]
+
+[[package]]
 name = "backcall"
 version = "0.2.0"
 description = "Specifications for callback functions passed in to an API"
@@ -656,6 +667,25 @@ sdist = ["build"]
 ssh = ["bcrypt (>=3.1.5)"]
 test = ["pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-cov", "pytest-xdist"]
 test-randomorder = ["pytest-randomly"]
+
+[[package]]
+name = "datapatch"
+version = "1.0.2"
+description = ""
+optional = false
+python-versions = "*"
+files = [
+    {file = "datapatch-1.0.2-py2.py3-none-any.whl", hash = "sha256:f4c7af5ac80d90924ca1e8f6dbe97025d1a44673e4819f4338a00b6830c534c0"},
+    {file = "datapatch-1.0.2.tar.gz", hash = "sha256:a93970150d5025868011f76795176e764d854e5a3e65384763d2861f929d2808"},
+]
+
+[package.dependencies]
+babel = ">=2.9.1,<3.0.0"
+normality = ">=2.1.1,<3.0.0"
+pyyaml = "*"
+
+[package.extras]
+dev = ["bump2version", "mypy", "pytest", "pytest-cov", "types-pyyaml"]
 
 [[package]]
 name = "decorator"
@@ -2529,4 +2559,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0e94459a372e161aac7dc8cb6658547cd5fe94237f54c0055a8cf5ade99a8469"
+content-hash = "fd1230bb1162c6fda83f24aea1afead43463ea85e38ea9196e2c645cbe527ad9"

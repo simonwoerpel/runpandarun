@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 from runpandarun import Playbook, read_pandas
@@ -7,6 +8,10 @@ def test_playbook(fixtures_path):
     play = Playbook.from_yaml(fixtures_path / "spec.yml")
     df = play.run(write=False)
     assert len(df) == 9999
+    assert df.index[0] == "ak-ahirco"
+    assert len(df[df["city"] == "Zarizri"]) == 0
+    orig = pd.read_csv(fixtures_path / "testdata.csv", skipfooter=1)
+    assert len(orig[orig["city"] == "Zarizri"]) == len(df[df["city"] == "Zar1zr1"])
 
     play = Playbook.from_yaml(fixtures_path / "applymap.yml")
     df = play.read.handle()

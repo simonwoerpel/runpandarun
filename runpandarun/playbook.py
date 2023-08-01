@@ -5,6 +5,7 @@ import yaml
 from pandas import DataFrame, Series
 from pydantic import BaseModel, root_validator
 
+from .datapatch import Patches, apply_patches
 from .exceptions import SpecError
 from .io import ReadHandler, WriteHandler
 from .types import PathLike
@@ -52,21 +53,26 @@ class Operation(ExpandMixin, BaseModel):
         return values
 
     def apply(self, df: DataFrame) -> DataFrame:
-        if "func" in self.options:
-            self.options["func"] = safe_eval(self.options["func"])
+        options = {}
+        for key, value in self.options.items():
+            if key == "func" or (isinstance(value, str) and value.startswith("lambda")):
+                options[key] = safe_eval(value)
+            else:
+                options[key] = value
         _, func = self.handler.split(".", 1)
         if self.column:
             func = getattr_by_path(df[self.column], func)
-            df[self.column] = func(**self.options)
+            df[self.column] = func(**options)
         else:
             func = getattr_by_path(df, func)
-            df = func(**self.options)
+            df = func(**options)
         return df
 
 
 class Playbook(ExpandMixin, BaseModel):
     read: ReadHandler | None = ReadHandler()
     operations: list[Operation] | None = []
+    patch: Patches | None = None
     write: WriteHandler | None = WriteHandler()
 
     class Config:
@@ -78,6 +84,9 @@ class Playbook(ExpandMixin, BaseModel):
 
         for op in self.operations:
             df = op.apply(df)
+
+        if self.patch:
+            df = apply_patches(self.patch, df)
 
         if write:
             self.write.handle(df)
