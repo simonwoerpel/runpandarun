@@ -774,13 +774,13 @@ testing = ["covdefaults (>=2.3)", "coverage (>=7.3)", "diff-cover (>=7.7)", "pyt
 
 [[package]]
 name = "fingerprints"
-version = "1.1.1"
+version = "1.2.0"
 description = "A library to generate entity fingerprints."
 optional = false
 python-versions = "*"
 files = [
-    {file = "fingerprints-1.1.1-py2.py3-none-any.whl", hash = "sha256:f6a915cad37b0f57978d38c4cf018bca7c97fc13e5051933aba4aa4fceb152d4"},
-    {file = "fingerprints-1.1.1.tar.gz", hash = "sha256:ba33333de2a801c279029ed10f0ac1abeb3734d652e432a8a7787da077165dca"},
+    {file = "fingerprints-1.2.0-py2.py3-none-any.whl", hash = "sha256:7cf5a7bb8982b4172a70f490ba1d9495ee998be2b5aa10640119e379dcced044"},
+    {file = "fingerprints-1.2.0.tar.gz", hash = "sha256:c2522f66bc98f0afc61282edab65e57e39d8e4ec5dc6b0cf9fe2f1592ac57af3"},
 ]
 
 [package.dependencies]
