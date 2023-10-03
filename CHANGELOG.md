@@ -2,6 +2,10 @@
 
 ## CHANGELOG
 
+### 0.3.2 (2023-10-03)
+
+- Upgrade dependencies
+
 ### 0.3.0 (2023-08-01)
 
 - Add [datapatch](https://github.com/pudo/datapatch)
