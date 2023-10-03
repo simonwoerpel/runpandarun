@@ -20,7 +20,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.9.0
+    rev: v3.14.0
     hooks:
       - id: pyupgrade
         args: [ "--py37-plus" ]
@@ -32,19 +32,19 @@ repos:
         args: ["--profile", "black"]
 
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 23.9.1
     hooks:
       - id: black
 
   - repo: https://github.com/csachs/pyproject-flake8
-    rev: v6.0.0.post1
+    rev: v6.1.0
     hooks:
       - id: pyproject-flake8
         additional_dependencies: [ flake8-bugbear ]
         args: [ "--extend-ignore", "E501" ]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
         exclude: \.csv|json|lock$
@@ -61,7 +61,7 @@ repos:
       - id: rst-inline-touching-normal
 
   - repo: https://github.com/python-poetry/poetry
-    rev: 1.5.1
+    rev: 1.6.0
     hooks:
       - id: poetry-check
       - id: poetry-lock
