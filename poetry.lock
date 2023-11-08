@@ -779,13 +779,13 @@ typing = ["typing-extensions (>=4.7.1)"]
 
 [[package]]
 name = "fingerprints"
-version = "1.1.1"
+version = "1.2.3"
 description = "A library to generate entity fingerprints."
 optional = false
 python-versions = "*"
 files = [
-    {file = "fingerprints-1.1.1-py2.py3-none-any.whl", hash = "sha256:f6a915cad37b0f57978d38c4cf018bca7c97fc13e5051933aba4aa4fceb152d4"},
-    {file = "fingerprints-1.1.1.tar.gz", hash = "sha256:ba33333de2a801c279029ed10f0ac1abeb3734d652e432a8a7787da077165dca"},
+    {file = "fingerprints-1.2.3-py2.py3-none-any.whl", hash = "sha256:b8f83ad13dcdadce94903383db3b9b062b85a3a86f54f9e26d8faa97313f20bf"},
+    {file = "fingerprints-1.2.3.tar.gz", hash = "sha256:1719f808ec8dd6c7b32c79129be3cc77dc2d2258008cd0236654862a86a78b97"},
 ]
 
 [package.dependencies]
@@ -2606,4 +2606,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "7f7656697eb71fcf32ae94d6361be4a97a0bd2373f14db76eb2ba2f4812b18a4"
+content-hash = "ed8f48be7d4f1633c51a7659bad3d6c5ac4236faf11285de70698c6f832e81c8"
