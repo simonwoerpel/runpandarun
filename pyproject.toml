@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "runpandarun"
-version = "0.3.2"
+version = "0.4.0"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
