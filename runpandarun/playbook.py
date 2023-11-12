@@ -3,7 +3,7 @@ from typing import Any, TypeVar
 
 import yaml
 from pandas import DataFrame, Series
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from .datapatch import Patches, apply_patches
 from .exceptions import SpecError
@@ -29,11 +29,9 @@ class Operation(ExpandMixin, BaseModel):
     handler: str
     options: dict[str, Any] | None = {}
     column: str | None = None
+    model_config = ConfigDict(extra="forbid")
 
-    class Config:
-        extra = "forbid"
-
-    @root_validator
+    @model_validator(mode="before")
     def validate_handler(cls, values):
         try:
             handler = values["handler"]
@@ -74,9 +72,7 @@ class Playbook(ExpandMixin, BaseModel):
     operations: list[Operation] | None = []
     patch: Patches | None = None
     write: WriteHandler | None = WriteHandler()
-
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
     def run(self, df: DataFrame | None = None, write: bool | None = False) -> DataFrame:
         if df is None:

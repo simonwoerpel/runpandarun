@@ -36,7 +36,7 @@ operations:
   - handler: Series.map
     column: slug
     options:
-      func: "lambda x: normality.slugify(x) if isinstance(x) else 'NO DATA'"
+      func: "lambda x: normality.slugify(x) if isinstance(x, str) else 'NO DATA'"
 ```
 
 store this as a file `pandas.yml`, and apply a data source:

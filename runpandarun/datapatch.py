@@ -15,7 +15,7 @@ class Datapatch(BaseModel):
     options: list[SDict] | None = []
 
     def __hash__(self) -> int:
-        return hash(str(repr(self.dict())))
+        return hash(str(repr(self.model_dump())))
 
 
 Patches: TypeAlias = dict[str, Datapatch]
@@ -23,7 +23,7 @@ Patches: TypeAlias = dict[str, Datapatch]
 
 @cache
 def get_lookup(name: str, patch: Datapatch) -> Lookup:
-    return Lookup(name=name, config=patch.dict())
+    return Lookup(name=name, config=patch.model_dump())
 
 
 @lru_cache(maxsize=10_000)

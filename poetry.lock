@@ -1981,6 +1981,16 @@ files = [
 plugins = ["importlib-metadata"]
 
 [[package]]
+name = "pyicu"
+version = "2.12"
+description = "Python extension wrapping the ICU C++ API"
+optional = false
+python-versions = "*"
+files = [
+    {file = "PyICU-2.12.tar.gz", hash = "sha256:bd7ab5efa93ad692e6daa29cd249364e521218329221726a113ca3cb281c8611"},
+]
+
+[[package]]
 name = "pytest"
 version = "7.4.3"
 description = "pytest: simple powerful testing with Python"
@@ -2649,4 +2659,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "e6398f025276d561db1da7ad84dccb5379679ade15467b3fadc20a397a038f8a"
+content-hash = "73847516f506744cf9919499a4381bdf509633d12e973e30887e8049af32bb70"
