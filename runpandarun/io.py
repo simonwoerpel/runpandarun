@@ -6,8 +6,7 @@ import fsspec
 import orjson
 import pandas as pd
 from pantomime import types
-from pydantic import BaseModel
-from pydantic import validator as field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from .exceptions import SpecError
 from .types import IO, PathLike
@@ -18,11 +17,10 @@ class Handler(BaseModel):
     options: dict[str, Any] | None = {}
     uri: str | None = "-"
     handler: str | None = None
-
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
     @field_validator("handler")
+    @classmethod
     def validate_handler(cls, v):
         if v is not None:
             handler = getattr(pd, v, None)
