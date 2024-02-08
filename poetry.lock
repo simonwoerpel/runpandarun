@@ -689,13 +689,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "datapatch"
-version = "1.1.1"
+version = "1.2.0"
 description = ""
 optional = false
 python-versions = "*"
 files = [
-    {file = "datapatch-1.1.1-py2.py3-none-any.whl", hash = "sha256:a89b6462d31e45065cd5e5e57726bccbd5a5ec446f980540f5df9b66f289f3fe"},
-    {file = "datapatch-1.1.1.tar.gz", hash = "sha256:8b6a3cbc37c765e3d275c83036516d43840462df4b61ebf3c3707fa7f8eb6819"},
+    {file = "datapatch-1.2.0-py2.py3-none-any.whl", hash = "sha256:a6676a5b7e55fcae21d502a7cfea06101116e13b73cc1d30bb310f03ee6f9dce"},
+    {file = "datapatch-1.2.0.tar.gz", hash = "sha256:a08c7a0f33e88653b61088835fb2cd8ee8a65c2d81f92ae1210089a4d89d3061"},
 ]
 
 [package.dependencies]
