@@ -47,7 +47,7 @@ pyicu = "^2.12"
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.4.3,<9.0.0"
 pytest-cov = "^4.1.0"
-black = "^23.11.0"
+black = ">=23.11,<25.0"
 isort = "^5.12.0"
 mypy = "^1.7.0"
 pre-commit = "^3.5.0"
