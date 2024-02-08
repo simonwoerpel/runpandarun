@@ -1,5 +1,6 @@
 import sys
-from typing import Any
+from pathlib import Path
+from typing import Any, BinaryIO, TextIO, TypeAlias
 from urllib.parse import urlparse
 
 import fsspec
@@ -8,16 +9,18 @@ import pandas as pd
 from pantomime import types
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from .exceptions import SpecError
-from .types import IO, PathLike
-from .util import guess_mimetype
+from runpandarun.exceptions import SpecError
+from runpandarun.types import PathLike, SDict
+from runpandarun.util import guess_mimetype
+
+Uri: TypeAlias = Path | BinaryIO | TextIO | str
 
 
 class Handler(BaseModel):
-    options: dict[str, Any] | None = {}
-    uri: str | None = "-"
+    options: SDict | None = {}
+    uri: Uri | None = "-"
     handler: str | None = None
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     @field_validator("handler")
     @classmethod
@@ -42,28 +45,27 @@ class Handler(BaseModel):
 class ReadHandler(Handler):
     _default_handler = "read_csv"
 
-    def handle(self, io: IO | str | None = None) -> pd.DataFrame:
-        io = io or self.uri
-        return read_pandas(io, self.get_name(), **self.options)
+    def handle(self, uri: Uri | None = None) -> pd.DataFrame:
+        uri = uri or self.uri
+        return read_pandas(uri, self.get_name(), **self.options)
 
 
 class WriteHandler(Handler):
     _default_handler = "to_csv"
 
-    def handle(self, df: pd.DataFrame, io: IO | str | None = None) -> None:
-        io = io or self.uri
-        return write_pandas(df, io, self.get_name(), **self.options)
+    def handle(self, df: pd.DataFrame, uri: Uri | None = None) -> None:
+        uri = uri or self.uri
+        return write_pandas(df, uri, self.get_name(), **self.options)
 
 
 def read_pandas(
-    io: PathLike | IO,
+    uri: Uri,
     handler: str | None = "read_csv",
-    mode: str | None = "rb",
     **kwargs,
 ) -> pd.DataFrame:
-    if io == "-":
-        io = sys.stdin.buffer
-    arg, kwargs = get_pandas_kwargs(handler, io, **kwargs)
+    if uri == "-":
+        uri = sys.stdin.buffer
+    arg, kwargs = get_pandas_kwargs(handler, uri, **kwargs)
     handler = getattr(pd, handler)
     res = handler(arg, **kwargs)
     return res
@@ -71,23 +73,22 @@ def read_pandas(
 
 def write_pandas(
     df: pd.DataFrame,
-    io: PathLike | IO,
+    uri: Uri,
     handler: str | None = "to_csv",
-    mode: str | None = "wb",
     **kwargs,
 ) -> None:
-    if io == "-":
-        io = sys.stdout.buffer
-    arg, kwargs = get_pandas_kwargs(handler, io, **kwargs)
+    if uri == "-":
+        uri = sys.stdout.buffer
+    arg, kwargs = get_pandas_kwargs(handler, uri, **kwargs)
     handler = getattr(df, handler)
     res = handler(arg, **kwargs)
     return res
 
 
-def read_json(io: PathLike | IO) -> Any:
-    if hasattr(io, "read"):  # TextIOWrapper
-        return orjson.loads(io.read())
-    with fsspec.open(io) as f:
+def read_json(uri: Uri) -> Any:
+    if hasattr(uri, "read"):  # TextIOWrapper
+        return orjson.loads(uri.read())
+    with fsspec.open(uri) as f:
         return orjson.loads(f.read())
 
 
@@ -118,16 +119,16 @@ def guess_handler_from_uri(uri: PathLike) -> str:
         )
 
 
-def get_pandas_kwargs(handler: str, io: IO, **kwargs) -> tuple[Any, dict[str, Any]]:
+def get_pandas_kwargs(handler: str, uri: Uri, **kwargs) -> tuple[Any, dict[str, Any]]:
     """
     Try to align our Spec with `uri` param to pandas api.
     """
-    arg = io
+    arg = uri
     if handler == "json_normalize":
-        arg = read_json(io)
+        arg = read_json(uri)
     elif "sql" in handler:
         arg = kwargs.pop("sql", None)
         if not isinstance(arg, str):
             raise SpecError("Provide `sql` parameter: A table name or SQL query")
-        kwargs["con"] = io
+        kwargs["con"] = uri
     return arg, kwargs
