@@ -27,7 +27,11 @@ runpandarun = "runpandarun.cli:cli"
 python = ">=3.10,<3.13"
 pandas = "^2.2.2"
 requests = "^2.31.0"
+<<<<<<< HEAD
 typer = "^0.12.3"
+=======
+typer = ">=0.9,<0.13"
+>>>>>>> 066b5bc (Bump typer from 0.11.0 to 0.12.3)
 banal = "^1.0.6"
 normality = "^2.5.0"
 orjson = "^3.9.15"
