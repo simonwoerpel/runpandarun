@@ -9,7 +9,7 @@ pre-commit:
 	poetry run pre-commit run -a
 
 test:
-	poetry run pytest tests -v --capture=sys --cov=runpandarun --cov-report term-missing
+	poetry run pytest tests -v --capture=sys --cov=runpandarun --cov-report lcov
 
 typecheck:
 	poetry run mypy --strict runpandarun

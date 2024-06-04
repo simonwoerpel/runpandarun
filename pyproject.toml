@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "runpandarun"
-version = "0.4.2"
+version = "0.4.3"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
 authors = ["Simon Wörpel <simon@investigativedata.org>"]
 license = "MIT"
@@ -25,9 +25,9 @@ runpandarun = "runpandarun.cli:cli"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-pandas = "^2.2.1"
+pandas = "^2.2.2"
 requests = "^2.31.0"
-typer = "^0.9.0"
+typer = "^0.12.3"
 banal = "^1.0.6"
 normality = "^2.5.0"
 orjson = "^3.9.15"
@@ -37,7 +37,7 @@ sqlalchemy = "^2.0.27"
 aiohttp = "^3.9.3"
 datapatch = "^1.2.0"
 cryptography = "^42.0.4"
-pydantic = "^2.6.2"
+pydantic = "^2.7.3"
 fingerprints = "^1.2.3"
 pyicu = "^2.12"
 s3fs = "^2024.2.0"
@@ -46,7 +46,7 @@ pytest-xdist = "^3.5.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
+pytest-cov = ">=4.1,<6.0"
 black = "^24.1.1"
 isort = "^5.13.2"
 mypy = "^1.8.0"
@@ -54,7 +54,7 @@ pre-commit = "^3.6.0"
 flake8 = "^7.0.0"
 ipdb = "^0.13.13"
 pytest-xdist = "^3.4.0"
-moto = "^5.0.2"
+moto = "^5.0.9"
 bump2version = "^1.0.1"
 
 [build-system]

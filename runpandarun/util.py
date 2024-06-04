@@ -12,7 +12,12 @@ import numpy as np
 import pandas as pd
 from pantomime import normalize_mimetype
 
-from .types import PathLike
+from runpandarun.types import PathLike
+
+try:
+    from investigraph import util as investigraph
+except ImportError:
+    investigraph = None
 
 
 def safe_eval(value):
@@ -40,6 +45,7 @@ def safe_eval(value):
                 "banal": banal,
                 "normality": normality,
                 "fingerprints": fingerprints,
+                "investigraph": investigraph,
             }
         },
     )
