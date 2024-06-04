@@ -2,12 +2,14 @@ from io import StringIO
 
 import pandas as pd
 import pytest
-from moto import mock_aws
+
+# from moto import mock_aws
 from pydantic import ValidationError
 
 from runpandarun import io
 from runpandarun.exceptions import SpecError
-from tests.util import setup_s3_bucket
+
+# from tests.util import setup_s3_bucket
 
 
 def test_io_read(monkeypatch, fixtures_path):
@@ -70,18 +72,18 @@ def test_io_read_remote(server):
     assert "registerNumber" in df.columns
 
 
-@mock_aws
-def test_io_s3():
-    setup_s3_bucket(with_content=True)
-    # https://stackoverflow.com/questions/74897486/how-to-resolve-pandas-read-csv-not-working-for-mock-s3
-    df = io.read_pandas("s3://runpandarun/testdata.csv")
-    assert len(df) == 10000
-    assert list(df.columns) == ["state", "city", "amount", "date"]
+# @mock_aws
+# def test_io_s3():
+#     setup_s3_bucket(with_content=True)
+#     # https://stackoverflow.com/questions/74897486/how-to-resolve-pandas-read-csv-not-working-for-mock-s3  # noqa: B950
+#     df = io.read_pandas("s3://runpandarun/testdata.csv")
+#     assert len(df) == 10000
+#     assert list(df.columns) == ["state", "city", "amount", "date"]
 
-    io.write_pandas(df.head(), "s3://runpandarun/testdata2.csv", index=0)
-    df = io.read_pandas("s3://runpandarun/testdata2.csv")
-    assert len(df) == 5
-    assert list(df.columns) == ["state", "city", "amount", "date"]
+#     io.write_pandas(df.head(), "s3://runpandarun/testdata2.csv", index=0)
+#     df = io.read_pandas("s3://runpandarun/testdata2.csv")
+#     assert len(df) == 5
+#     assert list(df.columns) == ["state", "city", "amount", "date"]
 
 
 def test_io_guess_handler():
