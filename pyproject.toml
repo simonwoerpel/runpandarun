@@ -1,9 +1,7 @@
 [project]
-[project]
 name = "runpandarun"
 version = "0.5.2"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
-authors = [{ name = "Simon Wörpel", email = "simon.woerpel@pm.me" }]
 authors = [{ name = "Simon Wörpel", email = "simon.woerpel@pm.me" }]
 license = "MIT"
 readme = "README.md"
@@ -40,13 +38,10 @@ dependencies = [
 Homepage = "https://investigraph.dev"
 Repository = "https://github.com/simonwoerpel/runpandarun"
 Documentation = "https://docs.investigraph.dev/runpandarun"
+Issues = "https://github.com/simonwoerpel/runpandarun/issues"
 
 [project.scripts]
 runpandarun = "runpandarun.cli:cli"
-
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/dataresearchcenter/runpandarun/issues"
-"Bug Tracker" = "https://github.com/dataresearchcenter/runpandarun/issues"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
