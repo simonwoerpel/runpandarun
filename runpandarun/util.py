@@ -10,7 +10,7 @@ import fingerprints
 import normality
 import numpy as np
 import pandas as pd
-from pantomime import normalize_mimetype
+from rigour.mime import normalize_mimetype
 
 from runpandarun.types import PathLike
 

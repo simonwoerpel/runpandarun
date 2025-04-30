@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import fsspec
 import orjson
 import pandas as pd
-from pantomime import types
+from rigour.mime import types
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from runpandarun.exceptions import SpecError
