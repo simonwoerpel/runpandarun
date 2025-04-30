@@ -1,6 +1,6 @@
 [project]
 name = "runpandarun"
-version = "0.5.2"
+version = "0.5.3"
 description = "Tell pandas what to do – easy tabular data I/O playbooks"
 authors = [{ name = "Simon Wörpel", email = "simon.woerpel@pm.me" }]
 license = "MIT"
