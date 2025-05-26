@@ -6,7 +6,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import banal
-import fingerprints
+import rigour
 import normality
 import numpy as np
 import pandas as pd
@@ -44,7 +44,7 @@ def safe_eval(value):
                 "timedelta": timedelta,
                 "banal": banal,
                 "normality": normality,
-                "fingerprints": fingerprints,
+                "rigour": rigour,
                 "investigraph": investigraph,
             }
         },

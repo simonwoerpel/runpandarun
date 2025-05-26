@@ -1192,8 +1192,8 @@ files = [
 ]
 
 [package.dependencies]
-decorator = {version = "*", markers = "python_version > \"3.6\" and python_version < \"3.11\""}
-ipython = {version = ">=7.31.1", markers = "python_version > \"3.6\" and python_version < \"3.11\""}
+decorator = {version = "*", markers = "python_version > \"3.6\""}
+ipython = {version = ">=7.31.1", markers = "python_version > \"3.6\""}
 tomli = {version = "*", markers = "python_version > \"3.6\" and python_version < \"3.11\""}
 
 [[package]]
@@ -2618,20 +2618,18 @@ six = ">=1.5"
 
 [[package]]
 name = "python-stdnum"
-version = "1.20"
+version = "2.1"
 description = "Python module to handle standardized numbers and codes"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "python-stdnum-1.20.tar.gz", hash = "sha256:ad2a2cf2eb025de408210235f36b4ae31252de3186240ccaa8126e117cb82690"},
-    {file = "python_stdnum-1.20-py2.py3-none-any.whl", hash = "sha256:111008e10391d54fb2afad2a10df70d5cb0c6c0a7ec82fec6f022cb8712961d3"},
+    {file = "python_stdnum-2.1-py3-none-any.whl", hash = "sha256:25eabcf5f307dd4150fd8f1c03f4512a6caeb84c9f09be1448711f5803373c58"},
+    {file = "python_stdnum-2.1.tar.gz", hash = "sha256:6b01645969eb3dfd55061a0114d593753cd9e653cea9083198b7eea12644397a"},
 ]
 
 [package.extras]
 soap = ["zeep"]
-soap-alt = ["suds"]
-soap-fallback = ["PySimpleSOAP"]
 
 [[package]]
 name = "pytz"
@@ -2879,13 +2877,13 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "rigour"
-version = "0.10.1"
+version = "0.12.2"
 description = "Financial crime domain data validation and normalization library."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "rigour-0.10.1-py3-none-any.whl", hash = "sha256:ba9cfc243e1d63161f9fb403f04ca959081c63df94f64f1d744c932fd4454a28"},
+    {file = "rigour-0.12.2-py3-none-any.whl", hash = "sha256:b87f2941cbcaae6e8eb8297e1d38b73bbb121a3135c9c6397d15180245fc9b3b"},
 ]
 
 [package.dependencies]
@@ -2896,7 +2894,7 @@ jellyfish = ">=1.0.0,<2.0.0"
 jinja2 = ">=3.1.0,<4.0.0"
 normality = ">=2.4.0,<3.0.0"
 pyicu = ">=2.15.2,<3.0.0"
-python-stdnum = ">=1.16,<2.0.0"
+python-stdnum = ">=2.0,<3.0.0"
 pytz = ">=2021.1"
 pyyaml = ">=5.0.0,<7.0.0"
 rapidfuzz = ">=3.9.0,<4.0.0"
@@ -3521,4 +3519,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4"
-content-hash = "e272a7e0926002007e60c8e8deb87a7ee5a438e8f9b93dc1b485348555e30a56"
+content-hash = "0958f9242a04ef8511f17e8974638e7672171d7bf39d9269c84f38e0a856f63d"
