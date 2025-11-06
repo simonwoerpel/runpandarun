@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Any, BinaryIO, TextIO, TypeAlias
+from typing import Any, AnyStr, BinaryIO, TextIO, TypeAlias, IO
 from urllib.parse import urlparse
 
 import fsspec
@@ -13,7 +13,7 @@ from runpandarun.exceptions import SpecError
 from runpandarun.types import PathLike, SDict
 from runpandarun.util import guess_mimetype
 
-Uri: TypeAlias = Path | BinaryIO | TextIO | str
+Uri: TypeAlias = Path | BinaryIO | TextIO | str | IO[AnyStr]
 
 
 class Handler(BaseModel):
