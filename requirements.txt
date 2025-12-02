@@ -1401,9 +1401,9 @@ virtualenv==20.27.1 ; python_version >= "3.10" and python_version < "4" \
 wcwidth==0.2.13 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
     --hash=sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5
-werkzeug==3.1.2 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:4f7d1a5de312c810a8a2c6f0b47e9f6a7cffb7c8322def35e4d4d9841ff85597 \
-    --hash=sha256:f471a4cd167233077e9d2a8190c3471c5bc520c636a9e3c1e9300c33bced03bc
+werkzeug==3.1.4 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:2ad50fb9ed09cc3af22c54698351027ace879a0b60a3b5edf5730b2f7d876905 \
+    --hash=sha256:cd3cd98b1b92dc3b7b3995038826c68097dcb16f9baa63abe35f20eafeb9fe5e
 wrapt==1.16.0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:0d2691979e93d06a95a26257adb7bfd0c93818e89b1406f5a28f36e0d8c1e1fc \
     --hash=sha256:14d7dc606219cdd7405133c713f2c218d4252f2a469003f8c46bb92d5d095d81 \
