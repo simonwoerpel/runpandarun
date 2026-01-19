@@ -3,4 +3,4 @@ from runpandarun.playbook import Playbook
 
 __all__ = ["Playbook", "read_pandas", "write_pandas"]
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
