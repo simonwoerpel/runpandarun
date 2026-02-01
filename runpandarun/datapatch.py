@@ -5,7 +5,7 @@ import pandas as pd
 from datapatch.lookup import Lookup
 from pydantic import BaseModel
 
-from .types import SDict
+from runpandarun.types import SDict
 
 
 class Datapatch(BaseModel):

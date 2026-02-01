@@ -4,7 +4,7 @@ from typing import Optional
 import typer
 from typing_extensions import Annotated
 
-from .playbook import Playbook
+from runpandarun.playbook import Playbook
 
 cli = typer.Typer()
 

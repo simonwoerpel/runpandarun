@@ -1,13 +1,13 @@
 import sys
 from pathlib import Path
-from typing import Any, AnyStr, BinaryIO, TextIO, TypeAlias, IO
+from typing import IO, Any, AnyStr, BinaryIO, TextIO, TypeAlias
 from urllib.parse import urlparse
 
 import fsspec
 import orjson
 import pandas as pd
-from rigour.mime import types
 from pydantic import BaseModel, ConfigDict, field_validator
+from rigour.mime import types
 
 from runpandarun.exceptions import SpecError
 from runpandarun.types import PathLike, SDict

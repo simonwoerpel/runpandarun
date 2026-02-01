@@ -6,10 +6,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 import banal
-import rigour
 import normality
 import numpy as np
 import pandas as pd
+import rigour
 from rigour.mime import normalize_mimetype
 
 from runpandarun.types import PathLike

@@ -5,11 +5,11 @@ import yaml
 from pandas import DataFrame, Series
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from .datapatch import Patches, apply_patches
-from .exceptions import SpecError
-from .io import ReadHandler, WriteHandler
-from .types import PathLike
-from .util import absolute_path_uri, expandvars, getattr_by_path, safe_eval
+from runpandarun.datapatch import Patches, apply_patches
+from runpandarun.exceptions import SpecError
+from runpandarun.io import ReadHandler, WriteHandler
+from runpandarun.types import PathLike
+from runpandarun.util import absolute_path_uri, expandvars, getattr_by_path, safe_eval
 
 P = TypeVar("P", bound="Playbook")
 
