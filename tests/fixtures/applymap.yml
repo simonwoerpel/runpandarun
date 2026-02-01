@@ -1,7 +1,7 @@
-# pandas applymap
+# pandas map (replaces applymap removed in pandas 3.0)
 read:
   uri: ./testdata.csv
 operations:
-  - handler: DataFrame.applymap
+  - handler: DataFrame.map
     options:
       func: 'lambda x: x.lower() if isinstance(x, str) else x'

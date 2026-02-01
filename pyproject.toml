@@ -14,22 +14,22 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-requires-python = ">=3.10,<4"
+requires-python = ">=3.11,<3.14"
 dependencies = [
-    "pandas (>=2.3.3,<3.0.0)",
+    "pandas (>=3.0.0,<4.0.0)",
     "requests (>=2.32.5,<3.0.0)",
-    "typer (>=0.20.0,<0.21.0)",
+    "typer (>=0.21.1,<0.22.0)",
     "banal (>=1.0.6,<2.0.0)",
     "normality (>=3.0.2,<4.0.0)",
-    "orjson (>=3.11.4,<4.0.0)",
+    "orjson (>=3.11.6,<4.0.0)",
     "openpyxl (>=3.1.5,<4.0.0)",
-    "sqlalchemy (>=2.0.44,<3.0.0)",
+    "sqlalchemy (>=2.0.46,<3.0.0)",
     "datapatch (>=1.2.4,<2.0.0)",
-    "pydantic (>=2.12.4,<3.0.0)",
+    "pydantic (>=2.12.5,<3.0.0)",
     "pyicu (>=2.16,<3.0)",
     "xlrd (>=2.0.2,<3.0.0)",
-    "s3fs (>=2025.10.0,<2027.0.0)",
-    "rigour (>=1.6.1,<2.0.0)",
+    "s3fs (>=2026.1.0,<2027.0.0)",
+    "rigour (>=1.6.2,<2.0.0)",
     "fsspec (>=2025.3.2,<2027.0.0)",
 ]
 

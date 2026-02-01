@@ -1,7 +1,7 @@
-# pandas applymap THIS MUST NOT WORK
+# pandas map THIS MUST NOT WORK
 read:
   uri: ./testdata.csv
 operations:
-  - handler: DataFrame.applymap
+  - handler: DataFrame.map
     options:
       func:  "__import__('os').system('rm -rf /tmp/foobar')"

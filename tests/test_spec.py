@@ -56,6 +56,6 @@ def test_spec_invalid():
     with pytest.raises(SpecError):
         Operation()
     with pytest.raises(ValidationError):
-        Operation(handler="DataFrame.applymap", foo="bar")
+        Operation(handler="DataFrame.map", foo="bar")
     with pytest.raises(ValidationError):
         Handler(operations="")
