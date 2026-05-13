@@ -1333,9 +1333,9 @@ pydantic==2.9.2 ; python_version >= "3.10" and python_version < "4" \
 pyflakes==3.2.0 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:1c61603ff154621fb2a9172037d84dca3500def8c8b630657d1701f026f8af3f \
     --hash=sha256:84b5be138a2dfbb40689ca07e2152deb896a65c3a3e24c251c5c62489568074a
-pygments==2.18.0 ; python_version >= "3.10" and python_version < "4" \
-    --hash=sha256:786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199 \
-    --hash=sha256:b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a
+pygments==2.20.0 ; python_version >= "3.10" and python_version < "4" \
+    --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \
+    --hash=sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176
 pyicu==2.14 ; python_version >= "3.10" and python_version < "4" \
     --hash=sha256:acc7eb92bd5c554ed577249c6978450a4feda0aa6f01470152b3a7b382a02132
 pytest-cov==6.0.0 ; python_version >= "3.10" and python_version < "4" \
