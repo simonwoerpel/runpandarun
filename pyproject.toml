@@ -42,7 +42,7 @@ Issues = "https://github.com/simonwoerpel/runpandarun/issues"
 runpandarun = "runpandarun.cli:cli"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
+pytest = "^9.0.3"
 pytest-cov = ">=4.1,<7.0"
 black = "^26.3.1"
 isort = "^5.13.2"
