@@ -54,6 +54,9 @@ pytest-xdist = "^3.4.0"
 moto = "^5.0.9"
 bump2version = "^1.0.1"
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
